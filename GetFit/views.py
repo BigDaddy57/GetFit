@@ -13,6 +13,5 @@ def user_list(request):
 
 
 def home_view(request):
-    users = User.objects.all()
-    return render(request, 'user_list.html', {'users': users})
+    return render(request, 'index.html')
 
