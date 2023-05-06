@@ -17,3 +17,6 @@ class UserListView(ListView):
 
 def home_view(request):
     return render(request, 'pages/index.html')
+
+def base_view(request):
+    return render(request, 'base.html')
