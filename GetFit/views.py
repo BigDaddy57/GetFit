@@ -1,17 +1,19 @@
 from django.shortcuts import render
-from .models import User
-from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from .models import UserProfile
+from django.views.generic import ListView
 
 
+@login_required
 def index(request):
-    return render(request, 'index.html')
+    return render(request, 'pages/index.html')
 
 
-def user_list(request):
-    users = User.objects.all()
-    return render(request, 'user_list.html', {'users': users})
+class UserListView(ListView):
+    model = UserProfile
+    template_name = 'pages/user_list.html'
+    context_object_name = 'users'
 
 
 def home_view(request):
-    return render(request, 'index.html')
-
+    return render(request, 'pages/index.html')
