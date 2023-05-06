@@ -24,6 +24,6 @@ from GetFit.views import user_list
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('users/', user_list, name='user_list'),
+    path('users/', views.user_list, name='user_list'),
     path('home/', home_view, name='home_view'),
 ]
