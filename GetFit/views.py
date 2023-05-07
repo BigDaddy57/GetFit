@@ -14,6 +14,8 @@ from django.contrib.auth import logout
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from .forms import UserProfileForm
+
 
 
 @login_required
@@ -51,3 +53,16 @@ def user_profile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     profile = get_object_or_404(UserProfile, user=user)
     return render(request, 'pages/user_profile.html', {'user': user, 'profile': profile})
+
+@login_required
+def edit_profile(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user.userprofile)
+        if form.is_valid():
+            form.save()
+            return redirect('user_profile', user_id=user_id)
+    else:
+        form = UserProfileForm(instance=user.userprofile)
+    return render(request, 'pages/edit_profile.html', {'form': form})
+

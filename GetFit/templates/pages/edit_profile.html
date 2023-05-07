@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Edit Profile</h1>
+  <form method="post" action="{% url 'edit_profile' user_id=user.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+      <label for="id_profile_picture">Profile Picture:</label>
+      {{ form.profile_picture }}
+    </div>
+    <div>
+      <label for="id_bio">Bio:</label>
+      {{ form.bio }}
+    </div>
+    <div>
+      <label for="id_age">Age:</label>
+      {{ form.age }}
+    </div>
+    <div>
+      <label for="id_height">Height (cm):</label>
+      {{ form.height }}
+    </div>
+    <div>
+      <label for="id_weight">Weight (kg):</label>
+      {{ form.weight }}
+    </div>
+    <div>
+      <label for="id_goals">Goals:</label>
+      {{ form.goals }}
+    </div>
+    <button type="submit">Save Changes</button>
+  </form>
+{% endblock %}

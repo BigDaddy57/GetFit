@@ -2,6 +2,7 @@
 
 {% block content %}
   <h1>{{ user.username }}</h1>
+  <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
   {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
   {% endif %}
