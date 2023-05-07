@@ -17,4 +17,8 @@
   {% if profile.weight %}
     <p>Weight: {{ profile.weight }} kg</p>
   {% endif %}
+  {% if profile.goals %}
+    <h2>Goals</h2>
+    <p>{{ profile.goals }}</p>
+  {% endif %}
 {% endblock %}

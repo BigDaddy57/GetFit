@@ -9,3 +9,4 @@ class UserProfile(models.Model):
     age = models.PositiveIntegerField(blank=True, null=True)
     height = models.PositiveIntegerField(blank=True, null=True)
     weight = models.PositiveIntegerField(blank=True, null=True)
+    goals = models.TextField(blank=True)

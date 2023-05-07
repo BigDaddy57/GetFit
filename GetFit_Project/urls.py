@@ -21,6 +21,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
 from GetFit import views
 from django.contrib.auth import views as auth_views
+from GetFit.views import user_profile
 
 
 
@@ -33,5 +34,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
+    path('user/<int:user_id>/', views.user_profile, name='user_profile'),
     
 ]

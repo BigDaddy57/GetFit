@@ -13,6 +13,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.messages.views import SuccessMessageMixin
 
 
 @login_required
@@ -28,11 +29,25 @@ def user_list(request):
 def home(request):
     return render(request, 'base.html')
 
-class RegisterView(CreateView):
+class RegisterView(SuccessMessageMixin, CreateView):
     form_class = UserCreationForm
     template_name = 'registration/register.html'
     success_url = reverse_lazy('login')
+    success_message = 'Your account was created successfully!'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user_profile = UserProfile.objects.create(user=self.object)
+        user_profile.save()
+        return response
+
  
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+@login_required
+def user_profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(UserProfile, user=user)
+    return render(request, 'pages/user_profile.html', {'user': user, 'profile': profile})
