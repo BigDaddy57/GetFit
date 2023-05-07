@@ -11,6 +11,9 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
 from django.contrib.auth import logout
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+
 
 @login_required
 def index(request):

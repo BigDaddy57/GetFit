@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ user.username }}</h1>
+  {% if profile.profile_picture %}
+    <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
+  {% endif %}
+  {% if profile.bio %}
+    <p>{{ profile.bio }}</p>
+  {% endif %}
+  {% if profile.age %}
+    <p>Age: {{ profile.age }}</p>
+  {% endif %}
+  {% if profile.height %}
+    <p>Height: {{ profile.height }} cm</p>
+  {% endif %}
+  {% if profile.weight %}
+    <p>Weight: {{ profile.weight }} kg</p>
+  {% endif %}
+{% endblock %}
