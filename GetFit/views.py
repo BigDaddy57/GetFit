@@ -67,11 +67,21 @@ def edit_profile(request, user_id):
     return render(request, 'pages/edit_profile.html', {'form': form})
 
 def followers_view(request, user_id):
-    user_profile = get_object_or_404(UserProfile, user_id=user_id)
-    followers = User.objects.filter(id__in=user_profile.followers.all())
-    return render(request, 'followers.html', {'followers': followers})
+    user_profile = get_object_or_404(UserProfile, pk=user_id)
+    followers = user_profile.followers.all()
+    if followers:
+        context = {'followers': followers}
+        return render(request, 'pages/followers.html', context)
+    else:
+        context = {'message': 'This user has no followers.'}
+        return render(request, 'pages/followers.html', context)
 
 def friends_view(request, user_id):
-    user_profile = get_object_or_404(UserProfile, user_id=user_id)
-    friends = User.objects.filter(id__in=user_profile.friends.all())
-    return render(request, 'friends.html', {'friends': friends})
+    user_profile = get_object_or_404(UserProfile, pk=user_id)
+    friends = user_profile.friends.all()
+    if friends:
+        context = {'friends': friends}
+        return render(request, 'pages/friends.html', context)
+    else:
+        context = {'message': 'This user has no friends.'}
+        return render(request, 'pages/friends.html', context)

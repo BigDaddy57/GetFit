@@ -23,9 +23,6 @@ from GetFit import views
 from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
 
-
-app_name = 'GetFit'
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
