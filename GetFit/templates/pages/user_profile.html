@@ -8,6 +8,8 @@
   {% endif %}
   {% if profile.bio %}
     <p>{{ profile.bio }}</p>
+    {% url 'GetFit:followers' user.id %}
+    {% url 'GetFit:friends' user.id %}
   {% endif %}
   {% if profile.age %}
     <p>Age: {{ profile.age }}</p>
@@ -23,3 +25,4 @@
     <p>{{ profile.goals }}</p>
   {% endif %}
 {% endblock %}
+

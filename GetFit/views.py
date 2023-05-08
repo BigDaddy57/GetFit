@@ -66,3 +66,12 @@ def edit_profile(request, user_id):
         form = UserProfileForm(instance=user.userprofile)
     return render(request, 'pages/edit_profile.html', {'form': form})
 
+def followers_view(request, user_id):
+    user_profile = get_object_or_404(UserProfile, user_id=user_id)
+    followers = User.objects.filter(id__in=user_profile.followers.all())
+    return render(request, 'followers.html', {'followers': followers})
+
+def friends_view(request, user_id):
+    user_profile = get_object_or_404(UserProfile, user_id=user_id)
+    friends = User.objects.filter(id__in=user_profile.friends.all())
+    return render(request, 'friends.html', {'friends': friends})

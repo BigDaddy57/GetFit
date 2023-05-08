@@ -14,6 +14,8 @@
     <a href="{% url 'index' %}">home</a>
     <a href="{% url 'user_list' %}">users</a>
     <a href="{% url 'user_profile' user.id %}">Profile</a>
+    <a class="nav-link" href="{% url 'friends' user.id %}">Friends</a>
+    <a class="nav-link" href="{% url 'followers' user.id %}">Followers</a>
   {% else %}
       <a href="{% url 'login' %}">Login</a>
       <a href="{% url 'register' %}">Register</a>

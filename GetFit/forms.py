@@ -13,3 +13,4 @@ class UserProfileForm(forms.ModelForm):
     height = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'name': 'height'}))
     weight = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'name': 'weight'}))
     goals = forms.CharField(required=False, widget=forms.Textarea(attrs={'name': 'goals'}))
+   

@@ -24,7 +24,7 @@ from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
 
 
-
+app_name = 'GetFit'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,5 +36,6 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('user/<int:user_id>/', views.user_profile, name='user_profile'),
     path('user/<int:user_id>/edit/', views.edit_profile, name='edit_profile'),
-    
+    path('followers/<int:user_id>/', views.followers_view, name='followers'),
+    path('friends/<int:user_id>/', views.friends_view, name='friends'),
 ]
