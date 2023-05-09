@@ -15,7 +15,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
-
+from django.http import HttpResponse
 
 
 @login_required
@@ -75,3 +75,49 @@ def friends_view(request, user_id):
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
     friends = User.objects.filter(id__in=user_profile.friends.all())
     return render(request, 'pages/friends.html', {'friends': friends})
+
+@login_required
+def follow_view(request, user_id):
+    """Follow a user"""
+    user_profile = get_object_or_404(UserProfile, user_id=user_id)
+    
+    # Check if the logged-in user is trying to follow themselves
+    if user_profile.user == request.user:
+        messages.warning(request, "You can't follow yourself!")
+        return redirect('pages/user_profile', user_id=user_id)
+    
+    # Add the logged-in user to the following list of the user being followed
+    user_profile.following.add(request.user.id)
+    user_profile.save()
+    
+    messages.success(request, f"You are now following {user_profile.user.username}")
+    return redirect('pages/user_profile', user_id=user_id)
+
+@login_required
+def unfollow_view(request, user_id):
+    """Unfollow a user"""
+    user_profile = get_object_or_404(UserProfile, user_id=user_id)
+    
+    # Remove the logged-in user from the following list of the user being unfollowed
+    user_profile.following.remove(request.user.id)
+    user_profile.save()
+    
+    messages.success(request, f"You have unfollowed {user_profile.user.username}")
+    return redirect('pages/user_profile', user_id=user_id)
+
+@login_required
+def friend(request, user_id):
+    friend_user = get_object_or_404(UserProfile, id=user_id)
+    if request.user.profile == friend_user:
+        messages.error(request, 'You cannot friend yourself')
+    else:
+        request.user.profile.friends.add(friend_user)
+        messages.success(request, f'You are now friends with {friend_user.user.username}')
+    return redirect('GetFit:user_profile', user_id=friend_user.id)
+
+@login_required
+def unfriend(request, user_id):
+    friend_user = get_object_or_404(UserProfile, id=user_id)
+    request.user.profile.friends.remove(friend_user)
+    messages.success(request, f'You are no longer friends with {friend_user.user.username}')
+    return redirect('GetFit:user_profile', user_id=friend_user.id)

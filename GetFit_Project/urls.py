@@ -22,6 +22,7 @@ from GetFit.views import user_list
 from GetFit import views
 from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
+from GetFit.views import follow_view, unfollow_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,4 +36,6 @@ urlpatterns = [
     path('user/<int:user_id>/edit/', views.edit_profile, name='edit_profile'),
     path('followers/<int:user_id>/', views.followers_view, name='followers'),
     path('friends/<int:user_id>/', views.friends_view, name='friends'),
+    path('user/<int:user_id>/follow/', follow_view, name='follow'),
+    path('user/<int:user_id>/unfollow/', unfollow_view, name='unfollow'),
 ]

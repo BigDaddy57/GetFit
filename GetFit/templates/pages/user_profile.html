@@ -2,15 +2,20 @@
 
 {% block content %}
   <h1>{{ user.username }}</h1>
+  {% if request.user.id in profile.following.all %}
+  <a href="{% url 'unfollow' user_id=user.id %}">Unfollow</a>
+{% else %}
+<a href="{% url 'follow' user_id=user.id %}">Follow</a>
+{% endif %}
   <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
   {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
   {% endif %}
   {% if profile.bio %}
     <p>{{ profile.bio }}</p>
-    {% url 'followers' user.id %}
-    {% url 'friends' user.id %}
-  {% endif %}
+    <a href="{% url 'followers' user.id %}">followers: {{ profile.followers.count }}</a>
+    <a href="{% url 'friends' user.id %}">friends: {{ profile.friends.count }}</a>
+{% endif %}
   {% if profile.age %}
     <p>Age: {{ profile.age }}</p>
   {% endif %}
