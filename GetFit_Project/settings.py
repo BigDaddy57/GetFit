@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'GetFit',
-    'haystack',
-    'whoosh',
 ]
 
 MIDDLEWARE = [
@@ -75,14 +73,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'GetFit_Project.wsgi.application'
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
-    },
-}
-
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

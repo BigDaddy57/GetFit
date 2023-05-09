@@ -132,9 +132,3 @@ def search(request):
     else:
         results = UserProfile.objects.none()
     return render(request, 'search_results.html', {'query': query, 'results': results})
-
-def haystack_search(request):
-    query = request.GET.get('q')
-    results = SearchQuerySet().filter(content=query)
-
-    return render(request, 'search_results.html', {'results': results})
