@@ -7,6 +7,13 @@
 {% else %}
 <a href="{% url 'follow' user_id=user.id %}">Follow</a>
 {% endif %}
+{% if not user.profile == request.user.profile %}
+  {% if user.profile in request.user.profile.friends.all %}
+    <a href="{% url 'GetFit:unfriend' user_id=user.id %}">Unfriend</a>
+  {% else %}
+    <a href="{% url 'GetFit:friend' user_id=user.id %}">Friend</a>
+  {% endif %}
+{% endif %}
   <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
   {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">

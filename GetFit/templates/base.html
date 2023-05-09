@@ -1,4 +1,5 @@
 <!-- templates/base.html -->
+{% load haystack %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,6 +17,10 @@
     <a href="{% url 'user_profile' user.id %}">Profile</a>
     <a class="nav-link" href="{% url 'friends' user.id %}">Friends</a>
     <a class="nav-link" href="{% url 'followers' user.id %}">Followers</a>
+<form method="get" action="{% url 'haystack_search' %}">
+    <input type="text" name="q" placeholder="Search">
+    <button type="submit">Search</button>
+</form>
   {% else %}
       <a href="{% url 'login' %}">Login</a>
       <a href="{% url 'register' %}">Register</a>

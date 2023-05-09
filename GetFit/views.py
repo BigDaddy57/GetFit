@@ -16,6 +16,8 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
 from django.http import HttpResponse
+from django.contrib.postgres.search import SearchVector
+from haystack.query import SearchQuerySet
 
 
 @login_required
@@ -113,11 +115,26 @@ def friend(request, user_id):
     else:
         request.user.profile.friends.add(friend_user)
         messages.success(request, f'You are now friends with {friend_user.user.username}')
-    return redirect('GetFit:user_profile', user_id=friend_user.id)
+    return redirect('user_profile', user_id=friend_user.id)
 
 @login_required
 def unfriend(request, user_id):
     friend_user = get_object_or_404(UserProfile, id=user_id)
     request.user.profile.friends.remove(friend_user)
     messages.success(request, f'You are no longer friends with {friend_user.user.username}')
-    return redirect('GetFit:user_profile', user_id=friend_user.id)
+    return redirect(':user_profile', user_id=friend_user.id)
+
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        # Use search vector to search across multiple fields
+        results = UserProfile.objects.annotate(search=SearchVector('username', 'bio')).filter(search=query)
+    else:
+        results = UserProfile.objects.none()
+    return render(request, 'search_results.html', {'query': query, 'results': results})
+
+def haystack_search(request):
+    query = request.GET.get('q')
+    results = SearchQuerySet().filter(content=query)
+
+    return render(request, 'search_results.html', {'results': results})

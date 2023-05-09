@@ -1,0 +1,33 @@
+<!-- search_results.html -->
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search Results</h1>
+    {% if query %}
+        <h2>Results for "{{ query }}"</h2>
+        {% for result in page %}
+            <p><a href="{{ result.object.get_absolute_url }}">{{ result.object.username }}</a></p>
+        {% empty %}
+            <p>No results found.</p>
+        {% endfor %}
+        {% if page.has_other_pages %}
+            <div class="pagination">
+                <span class="step-links">
+                    {% if page.has_previous %}
+                        <a href="?q={{ query }}&page={{ page.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current-page">
+                        Page {{ page.number }} of {{ page.paginator.num_pages }}.
+                    </span>
+
+                    {% if page.has_next %}
+                        <a href="?q={{ query }}&page={{ page.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+        {% endif %}
+    {% else %}
+        <p>No query entered.</p>
+    {% endif %}
+{% endblock %}
