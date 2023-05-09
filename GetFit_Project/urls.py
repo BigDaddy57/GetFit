@@ -40,5 +40,4 @@ urlpatterns = [
     path('user/<int:user_id>/unfollow/', unfollow_view, name='unfollow'),
     path('friend/<int:user_id>/', views.friend, name='friend'),
     path('unfriend/<int:user_id>/', views.unfriend, name='unfriend'),
-    path('search/', views.haystack_search, name='haystack_search'),
 ]

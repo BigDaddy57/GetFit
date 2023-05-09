@@ -16,8 +16,8 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
 from django.http import HttpResponse
-from django.contrib.postgres.search import SearchVector
-from haystack.query import SearchQuerySet
+
+
 
 
 @login_required
@@ -124,11 +124,3 @@ def unfriend(request, user_id):
     messages.success(request, f'You are no longer friends with {friend_user.user.username}')
     return redirect(':user_profile', user_id=friend_user.id)
 
-def search(request):
-    query = request.GET.get('q')
-    if query:
-        # Use search vector to search across multiple fields
-        results = UserProfile.objects.annotate(search=SearchVector('username', 'bio')).filter(search=query)
-    else:
-        results = UserProfile.objects.none()
-    return render(request, 'search_results.html', {'query': query, 'results': results})
