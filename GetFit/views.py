@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
 from django.http import HttpResponse
-
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 
 
@@ -63,7 +63,7 @@ def edit_profile(request, user_id):
         form = UserProfileForm(request.POST, request.FILES, instance=user.userprofile)
         if form.is_valid():
             form.save()
-            return redirect('user_profile', user_id=user_id)
+            return redirect('pages/user_profile', user_id=user_id)
     else:
         form = UserProfileForm(instance=user.userprofile)
     return render(request, 'pages/edit_profile.html', {'form': form})
@@ -73,6 +73,7 @@ def followers_view(request, user_id):
     followers = User.objects.filter(id__in=user_profile.followers.all())
     return render(request, 'pages/followers.html', {'followers': followers})
 
+@login_required
 def friends_view(request, user_id):
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
     friends = User.objects.filter(id__in=user_profile.friends.all())
@@ -81,6 +82,7 @@ def friends_view(request, user_id):
 @login_required
 def follow_view(request, user_id):
     """Follow a user"""
+    print("Follow view called!")
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
     
     # Check if the logged-in user is trying to follow themselves
@@ -93,6 +95,7 @@ def follow_view(request, user_id):
     user_profile.save()
     
     messages.success(request, f"You are now following {user_profile.user.username}")
+    user_profile.save()
     return redirect('pages/user_profile', user_id=user_id)
 
 @login_required
@@ -115,12 +118,20 @@ def friend(request, user_id):
     else:
         request.user.profile.friends.add(friend_user)
         messages.success(request, f'You are now friends with {friend_user.user.username}')
-    return redirect('user_profile', user_id=friend_user.id)
+    return redirect('pages/user_profile', user_id=friend_user.id)
 
 @login_required
 def unfriend(request, user_id):
     friend_user = get_object_or_404(UserProfile, id=user_id)
     request.user.profile.friends.remove(friend_user)
     messages.success(request, f'You are no longer friends with {friend_user.user.username}')
-    return redirect(':user_profile', user_id=friend_user.id)
+    return redirect('pages/user_profile', user_id=friend_user.id)
 
+@login_required
+def search(request):
+    query = request.GET.get('q')
+    if query:
+        results = User.objects.filter(username__icontains=query)
+    else:
+        results = []
+    return render(request, 'pages/search_results.html', {'users': results, 'query': query})

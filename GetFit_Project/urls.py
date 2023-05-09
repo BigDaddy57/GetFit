@@ -23,6 +23,7 @@ from GetFit import views
 from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
 from GetFit.views import follow_view, unfollow_view
+from GetFit.views import search
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,7 +33,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
-    path('user/<int:user_id>/', views.user_profile, name='user_profile'),
+    path('user/<int:user_id>/', views.user_profile, name='pages/user_profile'),
     path('user/<int:user_id>/edit/', views.edit_profile, name='edit_profile'),
     path('followers/<int:user_id>/', views.followers_view, name='followers'),
     path('friends/<int:user_id>/', views.friends_view, name='friends'),
@@ -40,4 +41,8 @@ urlpatterns = [
     path('user/<int:user_id>/unfollow/', unfollow_view, name='unfollow'),
     path('friend/<int:user_id>/', views.friend, name='friend'),
     path('unfriend/<int:user_id>/', views.unfriend, name='unfriend'),
+    path('search/', views.search, name='search'),
+    path('user/<int:user_id>/follow/', views.follow_view, name='follow'),
 ]
+
+

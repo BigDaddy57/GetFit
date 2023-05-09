@@ -14,3 +14,6 @@ class UserProfileForm(forms.ModelForm):
     weight = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'name': 'weight'}))
     goals = forms.CharField(required=False, widget=forms.Textarea(attrs={'name': 'goals'}))
    
+
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))

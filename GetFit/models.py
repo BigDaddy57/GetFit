@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     goals = models.CharField(max_length=500, null=True, blank=True)
     followers = models.ManyToManyField(User, related_name='following', blank=True)
     friends = models.ManyToManyField(User, related_name='friends', blank=True)
+    following = models.ManyToManyField(User, related_name='followers', blank=True)
 
     def __str__(self):
         return self.user.username

@@ -9,9 +9,9 @@
 {% endif %}
 {% if not user.profile == request.user.profile %}
   {% if user.profile in request.user.profile.friends.all %}
-    <a href="{% url 'GetFit:unfriend' user_id=user.id %}">Unfriend</a>
+    <a href="{% url 'unfriend' user_id=user.id %}">Unfriend</a>
   {% else %}
-    <a href="{% url 'GetFit:friend' user_id=user.id %}">Friend</a>
+    <a href="{% url 'friend' user_id=user.id %}">Friend</a>
   {% endif %}
 {% endif %}
   <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
@@ -20,7 +20,7 @@
   {% endif %}
   {% if profile.bio %}
     <p>{{ profile.bio }}</p>
-    <a href="{% url 'followers' user.id %}">followers: {{ profile.followers.count }}</a>
+    <a href="{% url 'followers' user.id %}"> Followers: {{ profile.followers.count }}</a>
     <a href="{% url 'friends' user.id %}">friends: {{ profile.friends.count }}</a>
 {% endif %}
   {% if profile.age %}
