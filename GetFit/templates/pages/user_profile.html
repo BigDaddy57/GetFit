@@ -22,8 +22,7 @@
     <p>{{ profile.bio }}</p>
     <a href="{% url 'followers' user.id %}"> Followers: {{ profile.followers.count }}</a>
     <a href="{% url 'friends' user.id %}">friends: {{ profile.friends.count }}</a>
-    <h3>Follower Count: {{ profile.followers.count }}</h3>
-  {% endif %}
+{% endif %}
   {% if profile.age %}
     <p>Age: {{ profile.age }}</p>
   {% endif %}

@@ -17,8 +17,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
 from django.http import HttpResponse
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-from django.db.models import Count
-
 
 @login_required
 def index(request):
@@ -49,6 +47,12 @@ class RegisterView(SuccessMessageMixin, CreateView):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+@login_required
+def user_profile(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    profile = get_object_or_404(UserProfile, user=user)
+    return render(request, 'pages/user_profile.html', {'user': user, 'profile': profile})
 
 @login_required
 def edit_profile(request, user_id):
@@ -91,16 +95,6 @@ def follow_view(request, user_id):
     messages.success(request, f"You are now following {user_profile.user.username}")
     user_profile.save()
     return redirect('pages/user_profile', user_id=user_id)
-
-@login_required
-def user_profile(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    profile = get_object_or_404(UserProfile, user=user)
-
-    # Get the follower count
-    follower_count = profile.followers.count()
-
-    return render(request, 'pages/user_profile.html', {'user': user, 'profile': profile, 'follower_count': follower_count})
 
 @login_required
 def unfollow_view(request, user_id):
