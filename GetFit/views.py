@@ -154,16 +154,19 @@ def newsfeed(request):
     context = {'posts': posts}
     return render(request, 'pages/newsfeed.html', context)
 
-@login_required
 def create_post(request):
     if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES)
+        form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            post.author = request.user
+            post.user = request.user  # set the user field to the current user
             post.save()
-            messages.success(request, 'Your post has been created successfully!')
+            messages.success(request, 'Your post has been created!')
             return redirect('home')
     else:
         form = PostForm()
-    return render(request, 'posts/create_post.html', {'form': form})
+    return render(request, 'create_post.html', {'form': form})
+
+
+def posts(request):
+    return render(request, 'getfit/posts/posts.html')

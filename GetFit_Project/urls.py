@@ -51,6 +51,8 @@ urlpatterns = [
     path('user/<int:user_id>/unfriend/', unfriend, name='unfriend'),
     path('user/<int:user_id>/', views.user_profile, name='user_profile'),
     path('newsfeed/', views.newsfeed, name='newsfeed'),
+    path('newsfeed/posts/', views.posts, name='posts'),
+    path('create-post/', views.create_post, name='create_post'),
 ]
 
 
