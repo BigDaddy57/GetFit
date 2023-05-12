@@ -1,0 +1,20 @@
+<!-- HTML code to display posts -->
+<div class="post">
+    <div class="post-header">
+      <img src="{{ post.author.profile_picture }}" alt="Profile Picture">
+      <div class="post-details">
+        <h3>{{ post.title }}</h3>
+        <p>Posted by {{ post.author.name }} on {{ post.timestamp }}</p>
+      </div>
+    </div>
+    <div class="post-body">
+      <p>{{ post.content }}</p>
+      <img src="{{ post.image }}" alt="Post Image">
+      <p class="tags">Tags: {{ post.tags }}</p>
+    </div>
+    <div class="post-footer">
+      <button class="like-button">Like</button>
+      <button class="comment-button">Comment</button>
+      <button class="share-button">Share</button>
+    </div>
+  </div>

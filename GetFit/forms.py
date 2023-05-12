@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
+from .models import Post
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -13,7 +14,8 @@ class UserProfileForm(forms.ModelForm):
     height = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'name': 'height'}))
     weight = forms.IntegerField(required=False, widget=forms.NumberInput(attrs={'name': 'weight'}))
     goals = forms.CharField(required=False, widget=forms.Textarea(attrs={'name': 'goals'}))
-   
 
-class SearchForm(forms.Form):
-    query = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['content']

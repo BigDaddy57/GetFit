@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Create New Post</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		.container {
+			margin-top: 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.form-input {
+			margin-bottom: 20px;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+		}
+
+		.form-input label {
+			margin-bottom: 5px;
+			font-weight: bold;
+			font-size: 18px;
+		}
+
+		.form-input input[type="text"], .form-input input[type="file"] {
+			margin-top: 5px;
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+			font-size: 16px;
+			width: 100%;
+		}
+
+		.form-input textarea {
+			margin-top: 5px;
+			padding: 10px;
+			border-radius: 5px;
+			border: none;
+			box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+			font-size: 16px;
+			width: 100%;
+			height: 150px;
+			resize: vertical;
+		}
+
+		.form-input button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 18px;
+		}
+
+		.form-input button:hover {
+			background-color: #3E8E41;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<form action="" method="POST" enctype="multipart/form-data">
+			<div class="form-input">
+				<label for="title">Title:</label>
+				<input type="text" id="title" name="title" required>
+			</div>
+			<div class="form-input">
+				<label for="image">Image:</label>
+				<input type="file" id="image" name="image" accept="image/*" required>
+			</div>
+			<div class="form-input">
+				<label for="tags">Tags:</label>
+				<input type="text" id="tags" name="tags" required>
+			</div>
+			<div class="form-input">
+				<label for="content">Content:</label>
+				<textarea id="content" name="content" required></textarea>
+			</div>
+			<div class="form-input">
+				<button type="submit">Create Post</button>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

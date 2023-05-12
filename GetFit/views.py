@@ -1,3 +1,5 @@
+from multiprocessing import context
+from pdb import post_mortem
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -17,6 +19,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
 from django.http import HttpResponse
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
+from .models import Post, UserProfile
+from .forms import PostForm
 
 @login_required
 def index(request):
@@ -24,9 +28,19 @@ def index(request):
 
 @login_required
 def user_list(request):
-    users = User.objects.all()
-    context = {'users': users}
-    return render(request, 'pages/user_list.html', context)
+    users = User.objects.all().exclude(id=request.user.id)
+    profiles = UserProfile.objects.all()
+    follows = []
+    friends = []
+    for user in users:
+        try:
+            profile = user.userprofile
+            follows.append(profile.followers.filter(id=request.user.id).exists())
+            friends.append(profile.friends.filter(id=request.user.id).exists())
+        except:
+            follows.append(False)
+            friends.append(False)
+    return render(request, 'pages/user_list.html', {'users': zip(users, profiles, follows, friends)})
 
 def home(request):
     return render(request, 'base.html')
@@ -109,7 +123,7 @@ def unfollow_view(request, user_id):
     return redirect('pages/user_profile', user_id=user_id)
 
 @login_required
-def friend(request, user_id):
+def friends(request, user_id):
     friend_user = get_object_or_404(UserProfile, id=user_id)
     if request.user.profile == friend_user:
         messages.error(request, 'You cannot friend yourself')
@@ -133,3 +147,23 @@ def search(request):
     else:
         results = []
     return render(request, 'pages/search_results.html', {'users': results, 'query': query})
+
+@login_required
+def newsfeed(request):
+    posts = Post.objects.all().order_by('-timestamp')
+    context = {'posts': posts}
+    return render(request, 'pages/newsfeed.html', context)
+
+@login_required
+def create_post(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            messages.success(request, 'Your post has been created successfully!')
+            return redirect('home')
+    else:
+        form = PostForm()
+    return render(request, 'posts/create_post.html', {'form': form})

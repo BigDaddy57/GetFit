@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from GetFit.views import index,home,RegisterView
+from GetFit.views import friends_view, index,home,RegisterView, unfriend
 from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
 from GetFit import views
@@ -24,6 +24,8 @@ from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
 from GetFit.views import follow_view, unfollow_view
 from GetFit.views import search
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,10 +41,16 @@ urlpatterns = [
     path('friends/<int:user_id>/', views.friends_view, name='friends'),
     path('user/<int:user_id>/follow/', follow_view, name='follow'),
     path('user/<int:user_id>/unfollow/', unfollow_view, name='unfollow'),
-    path('friend/<int:user_id>/', views.friend, name='friend'),
+    path('friend/<int:user_id>/', views.friends, name='friend'),
     path('unfriend/<int:user_id>/', views.unfriend, name='unfriend'),
     path('search/', views.search, name='search'),
     path('user/<int:user_id>/follow/', views.follow_view, name='follow'),
+    path('user/<int:user_id>/follow/', views.follow_view, name='follow'),
+    path('user/<int:user_id>/unfollow/', views.unfollow_view, name='unfollow'),
+    path('user/<int:user_id>/friend/', friends_view, name='friend'),
+    path('user/<int:user_id>/unfriend/', unfriend, name='unfriend'),
+    path('user/<int:user_id>/', views.user_profile, name='user_profile'),
+    path('newsfeed/', views.newsfeed, name='newsfeed'),
 ]
 
 

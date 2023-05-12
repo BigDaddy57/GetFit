@@ -1,13 +1,48 @@
-<!-- templates/pages/user_list.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Registered Users</h1>
-  <ul>
-  {% for user in users %}
-    <li>{{ user.username }}</li>
-  {% empty %}
-    <li>No users yet.</li>
-  {% endfor %}
-  </ul>
+  <h1>Users</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Follow</th>
+        <th>Friend</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user, profile, follows, friends in users %}
+        <tr>
+          <td><a href="{% url 'user_profile' user_id=user.id %}">{{ user.username }}</a></td>
+          <td>{{ user.email }}</td>
+          <td>
+            {% if follows %}
+              <form method="post" action="{% url 'unfollow' user_id=user.id %}">
+                {% csrf_token %}
+                <button type="submit">Unfollow</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'follow' user_id=user.id %}">
+                {% csrf_token %}
+                <button type="submit">Follow</button>
+              </form>
+            {% endif %}
+          </td>
+          <td>
+            {% if friends %}
+              <form method="post" action="{% url 'unfriend' user_id=user.id %}">
+                {% csrf_token %}
+                <button type="submit">Unfriend</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'friend' user_id=user.id %}">
+                {% csrf_token %}
+                <button type="submit">Friend</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
