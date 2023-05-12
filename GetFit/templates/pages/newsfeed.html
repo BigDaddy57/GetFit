@@ -1,17 +1,86 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
   <h1>Newsfeed</h1>
-  <a href="{% url 'posts/create_post' %}">Create a Post</a>
-  {% if posts %}
-    {% for post in posts %}
-      <div class="post">
-        <p class="post-content">{{ post.content }}</p>
-        <p class="post-user">Posted by: {{ post.user.username }}</p>
-        <p class="post-timestamp">Posted on: {{ post.timestamp }}</p>
-      </div>
-    {% endfor %}
-  {% else %}
-    <p>No posts to display.</p>
-  {% endif %}
+  {% for post in posts %}
+    <div id="post-{{ post.id }}">
+      <h2>{{ post.title }}</h2>
+      <p>{{ post.content }}</p>
+      <p>Likes: <span class="like-count">{{ post.likes }}</span></p>
+      <button class="like-button" data-postid="{{ post.id }}">Like</button>
+      <button class="comment-button" data-postid="{{ post.id }}">Comment</button>
+      <button class="share-button" data-postid="{{ post.id }}">Share</button>
+    </div>
+  {% endfor %}
+
+  <script>
+    // Get all the like buttons and add event listeners to them
+    var likeButtons = document.querySelectorAll('.like-button');
+    for (var i = 0; i < likeButtons.length; i++) {
+      likeButtons[i].addEventListener('click', function() {
+        var postId = this.dataset.postid;
+        likePost(postId);
+      });
+    }
+
+    // Get all the comment buttons and add event listeners to them
+    var commentButtons = document.querySelectorAll('.comment-button');
+    for (var i = 0; i < commentButtons.length; i++) {
+      commentButtons[i].addEventListener('click', function() {
+        var postId = this.dataset.postid;
+        commentPost(postId);
+      });
+    }
+
+    // Get all the share buttons and add event listeners to them
+    var shareButtons = document.querySelectorAll('.share-button');
+    for (var i = 0; i < shareButtons.length; i++) {
+      shareButtons[i].addEventListener('click', function() {
+        var postId = this.dataset.postid;
+        sharePost(postId);
+      });
+    }
+
+    function likePost(postId) {
+      // Send a POST request to the server to like the post
+      fetch(`/posts/like/${postId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        // Update the UI to reflect the new like count
+        const postElement = document.getElementById(`post-${postId}`);
+        postElement.querySelector('.like-count').textContent = data.likes;
+      })
+      .catch(error => console.log('Error: ' + error));
+    }
+
+    function commentPost(postId) {
+      // Redirect the user to the comment page for the post
+      window.location.href = `/posts/${postId}/comment`;
+    }
+
+    function sharePost(postId) {
+      // Send a POST request to the server to share the post
+      fetch(`/posts/share/${postId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('Post shared successfully!');
+        } else {
+          console.log('Error: ' + response.status);
+        }
+      })
+      .catch(error => console.log('Error: ' + error));
+    }
+  </script>
 {% endblock %}

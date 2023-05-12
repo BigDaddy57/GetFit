@@ -24,6 +24,7 @@ from django.contrib.auth import views as auth_views
 from GetFit.views import user_profile
 from GetFit.views import follow_view, unfollow_view
 from GetFit.views import search
+from GetFit.views import like_post, comment_post, share_post
 
 
 
@@ -53,6 +54,10 @@ urlpatterns = [
     path('newsfeed/', views.newsfeed, name='newsfeed'),
     path('newsfeed/posts/', views.posts, name='posts'),
     path('create-post/', views.create_post, name='create_post'),
+    path('posts/create/', views.create_post, name='create_post'),
+    path('like_post/<int:post_id>/', views.like_post, name='like_post'),
+    path('posts/<int:post_id>/comment/', views.create_comment, name='comment'),
+    path('<int:pk>/share/', share_post, name='share'),
 ]
 
 

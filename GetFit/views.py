@@ -21,6 +21,9 @@ from django.http import HttpResponse
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from .models import Post, UserProfile
 from .forms import PostForm
+from .forms import CreateCommentForm
+from .models import Post, Comment
+from .models import Post, Share
 
 @login_required
 def index(request):
@@ -148,11 +151,11 @@ def search(request):
         results = []
     return render(request, 'pages/search_results.html', {'users': results, 'query': query})
 
-@login_required
 def newsfeed(request):
     posts = Post.objects.all().order_by('-timestamp')
-    context = {'posts': posts}
-    return render(request, 'pages/newsfeed.html', context)
+    for post in posts:
+        post.like_count = post.likes.count()
+    return render(request, 'pages/newsfeed.html', {'posts': posts})
 
 def create_post(request):
     if request.method == 'POST':
@@ -170,3 +173,78 @@ def create_post(request):
 
 def posts(request):
     return render(request, 'getfit/posts/posts.html')
+
+@login_required
+def create_comment(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+
+    if request.method == 'POST':
+        form = CreateCommentForm(request.POST)
+
+        if form.is_valid():
+            content = form.cleaned_data['content']
+            comment = Comment(user=request.user, post=post, content=content)
+            comment.save()
+
+            return redirect('newsfeed')
+
+    else:
+        form = CreateCommentForm()
+
+    context = {
+        'post': post,
+        'form': form,
+    }
+
+    return render(request, 'posts/create_comment.html', context)
+
+
+@login_required
+def share_post(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if request.method == 'POST':
+        share = Share(user=request.user, post=post)
+        share.save()
+        return redirect('newsfeed')
+    else:
+        return redirect('post_detail', post_id=post_id)
+    
+@login_required
+def share_post(request, post_id):
+    # Retrieve the post object using the post_id parameter
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.method == 'POST':
+        # Create a new Share object with the user and post from the request
+        share = Share(user=request.user, post=post)
+        share.save()
+        messages.success(request, 'Post shared successfully!')
+        
+    # Redirect the user back to the newsfeed page
+    return redirect('newsfeed')
+    
+@login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    # Check if the user has already liked this post
+    if post.likes.filter(id=request.user.id).exists():
+        # User has already liked this post, remove the like
+        post.likes.remove(request.user)
+    else:
+        # User hasn't liked this post yet, add the like
+        post.likes.add(request.user)
+
+    # Redirect the user back to the newsfeed page
+    return redirect('newsfeed')
+
+def comment_post(request):
+    if request.method == 'POST':
+        form = CreateCommentForm(request.POST)
+        if form.is_valid():
+            post_id = form.cleaned_data['post_id']
+            post = Post.objects.get(pk=post_id)
+            comment = Comment(text=form.cleaned_data['text'], post=post, author=request.user)
+            comment.save()
+            return redirect('post_detail', post_id=post_id)
+    return redirect('home')

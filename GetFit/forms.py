@@ -19,3 +19,6 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['content']
+
+class CreateCommentForm(forms.Form):
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows':3}), max_length=500)

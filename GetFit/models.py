@@ -23,3 +23,28 @@ class Post(models.Model):
     tags = models.CharField(max_length=255, blank=True)
     text = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='post_likes')
+def update_like_count(post_id):
+    post = Post.objects.get(id=post_id)
+    post.likes += 1
+    post.save()
+def update_comment_count(post_id):
+    post = Post.objects.get(id=post_id)
+    post.comments += 1
+    post.save()
+def update_share_count(post_id):
+    post = Post.objects.get(id=post_id)
+    post.shares += 1
+    post.save()
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+class Share(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)

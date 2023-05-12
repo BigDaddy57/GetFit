@@ -60,7 +60,7 @@ ROOT_URLCONF = 'GetFit_Project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['getfit/templates/posts'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
