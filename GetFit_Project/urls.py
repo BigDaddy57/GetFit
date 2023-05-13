@@ -58,6 +58,10 @@ urlpatterns = [
     path('like_post/<int:post_id>/', views.like_post, name='like_post'),
     path('posts/<int:post_id>/comment/', views.create_comment, name='comment'),
     path('<int:pk>/share/', share_post, name='share'),
+    path('posts/like/<int:post_id>/', views.like_post, name='like_post'),
+    path('posts/share/<int:post_id>/', views.share_post, name='share_post'),
+    path('pages/settings/', views.settings, name='settings'),
+
 ]
 
 

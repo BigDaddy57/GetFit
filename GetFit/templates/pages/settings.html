@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Settings</title>
+  </head>
+  <body>
+    <h1>Settings</h1>
+    <input type="submit" name="submit" value="Save Changes">
+    <a href="{% url 'home' %}">Home</a>
+    <h2>Privacy Settings</h2>
+    <form>
+      <label>
+        <input type="checkbox" name="private" value="private"> Account Privacy
+      </label>
+      <br>
+      <label>
+        <input type="checkbox" name="activity" value="activity"> Activity Status
+      </label>
+      <br>
+      <label>
+        <input type="checkbox" name="visibility" value="visibility"> Profile Visibility
+      </label>
+    </form>
+    
+    <h2>Notification Settings</h2>
+    <form>
+      <label>
+        <input type="checkbox" name="push" value="push"> Push Notifications
+      </label>
+      <br>
+      <label>
+        <input type="checkbox" name="email" value="email"> Email Notifications
+      </label>
+      <br>
+      <label>
+        <input type="checkbox" name="in-app" value="in-app"> In-App Notifications
+      </label>
+      <br>
+      <label>
+        Frequency of Notifications:
+        <select name="frequency">
+          <option value="real-time">Real-time</option>
+          <option value="hourly">Hourly</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </label>
+    </form>
+    
+    <h2>Account Settings</h2>
+    <form>
+      <label>
+        Email:
+        <input type="email" name="email" placeholder="Enter your email">
+      </label>
+      <br>
+      <label>
+        Password:
+        <input type="password" name="password" placeholder="Enter your password">
+      </label>
+      <br>
+      <label>
+        Language:
+        <select name="language">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+          <option value="de">German</option>
+        </select>
+      </label>
+      <br>
+      <label>
+        Theme:
+        <input type="radio" name="theme" value="light"> Light
+        <input type="radio" name="theme" value="dark"> Dark
+      </label>
+      <br>
+      <button type="submit" name="deactivate">Deactivate Account</button>
+    </form>
+  </body>
+</html>

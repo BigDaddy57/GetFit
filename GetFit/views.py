@@ -24,6 +24,7 @@ from .forms import PostForm
 from .forms import CreateCommentForm
 from .models import Post, Comment
 from .models import Post, Share
+from django.http import JsonResponse
 
 @login_required
 def index(request):
@@ -222,6 +223,7 @@ def share_post(request, post_id):
         
     # Redirect the user back to the newsfeed page
     return redirect('newsfeed')
+    return JsonResponse({})
     
 @login_required
 def like_post(request, post_id):
@@ -237,6 +239,7 @@ def like_post(request, post_id):
 
     # Redirect the user back to the newsfeed page
     return redirect('newsfeed')
+    return JsonResponse(data)
 
 def comment_post(request):
     if request.method == 'POST':
@@ -248,3 +251,6 @@ def comment_post(request):
             comment.save()
             return redirect('post_detail', post_id=post_id)
     return redirect('home')
+
+def settings(request):
+    return render(request, 'pages/settings.html')

@@ -17,6 +17,7 @@
     <a href="{% url 'pages/user_profile' user.id %}">Profile</a>
     <a class="nav-link" href="{% url 'friends' user.id %}">Friends</a>
     <a class="nav-link" href="{% url 'followers' user.id %}">Followers</a>
+    <a class="nav-link" href="{% url 'settings' %}">Settings</a>
     <form method="GET" action="{% url 'search' %}">
       <input type="text" name="q" placeholder="Search...">
       <button type="submit">Search</button>
