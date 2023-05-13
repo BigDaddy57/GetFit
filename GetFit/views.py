@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 import requests
-from .models import UserProfile
+from .models import  UserProfile
 from django.views.generic import ListView
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm

@@ -61,7 +61,7 @@ urlpatterns = [
     path('posts/like/<int:post_id>/', views.like_post, name='like_post'),
     path('posts/share/<int:post_id>/', views.share_post, name='share_post'),
     path('pages/settings/', views.settings, name='settings'),
-
-]
+    
+    ]
 
 

@@ -15,6 +15,20 @@
   {% endif %}
 {% endif %}
   <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
+  <div class="user-stats">
+    <div class="post-count">
+        <span class="count">{{ post_count }}</span>
+        <span class="label">Posts</span>
+    </div>
+    <div class="like-count">
+        <span class="count">{{ like_count }}</span>
+        <span class="label">Likes</span>
+    </div>
+    <div class="follower-count">
+        <span class="count">{{ follower_count }}</span>
+        <span class="label">Followers</span>
+    </div>
+  </div>
   {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
   {% endif %}
@@ -27,10 +41,10 @@
     <p>Age: {{ profile.age }}</p>
   {% endif %}
   {% if profile.height %}
-    <p>Height: {{ profile.height }} cm</p>
+    <p>Height: {{ profile.height }} Ft</p>
   {% endif %}
   {% if profile.weight %}
-    <p>Weight: {{ profile.weight }} kg</p>
+    <p>Weight: {{ profile.weight }} Lbs</p>
   {% endif %}
   {% if profile.goals %}
     <h2>Goals</h2>
