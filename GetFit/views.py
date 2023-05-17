@@ -1,9 +1,12 @@
 from multiprocessing import context
+import os
 from pdb import post_mortem
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
+from pyparsing import FollowedBy
 import requests
+from GetFit_Project.settings import BASE_DIR
 from .models import  UserProfile
 from django.views.generic import ListView
 from django.contrib.auth.models import User
@@ -70,6 +73,10 @@ def logout_view(request):
 def user_profile(request, user_id):
     user = get_object_or_404(User, id=user_id)
     profile = get_object_or_404(UserProfile, user=user)
+    user_profile = UserProfile.objects.get(user_id=user_id)
+    post_count = user_profile.posts_count
+    follower_count = user_profile.followers_count
+    following_count = user_profile.following_count
     return render(request, 'pages/user_profile.html', {'user': user, 'profile': profile})
 
 @login_required
@@ -90,26 +97,30 @@ def followers_view(request, user_id):
     return render(request, 'pages/followers.html', {'followers': followers})
 
 @login_required
-def friends_view(request, user_id):
+def following_view(request, user_id):
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
-    friends = User.objects.filter(id__in=user_profile.friends.all())
-    return render(request, 'pages/friends.html', {'friends': friends})
+    following = User.objects.filter(id__in=user_profile.following.all())
+    return render(request, 'pages/following.html', {'following': following})
 
 @login_required
 def follow_view(request, user_id):
     """Follow a user"""
     print("Follow view called!")
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
-    
+
     # Check if the logged-in user is trying to follow themselves
     if user_profile.user == request.user:
         messages.warning(request, "You can't follow yourself!")
         return redirect('pages/user_profile', user_id=user_id)
-    
+
     # Add the logged-in user to the following list of the user being followed
     user_profile.following.add(request.user.id)
     user_profile.save()
-    
+
+    # Create a Follow object to save the follower and the followed user
+    follow =follow(follower=request.user, followed=user_profile.user)
+    follow.save()
+
     messages.success(request, f"You are now following {user_profile.user.username}")
     user_profile.save()
     return redirect('pages/user_profile', user_id=user_id)
@@ -118,30 +129,16 @@ def follow_view(request, user_id):
 def unfollow_view(request, user_id):
     """Unfollow a user"""
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
-    
+
     # Remove the logged-in user from the following list of the user being unfollowed
     user_profile.following.remove(request.user.id)
     user_profile.save()
-    
+
+    # Delete the Follow object of the follower and the followed user
+    follow.objects.filter(follower=request.user, followed=user_profile.user).delete()
+
     messages.success(request, f"You have unfollowed {user_profile.user.username}")
     return redirect('pages/user_profile', user_id=user_id)
-
-@login_required
-def friends(request, user_id):
-    friend_user = get_object_or_404(UserProfile, id=user_id)
-    if request.user.profile == friend_user:
-        messages.error(request, 'You cannot friend yourself')
-    else:
-        request.user.profile.friends.add(friend_user)
-        messages.success(request, f'You are now friends with {friend_user.user.username}')
-    return redirect('pages/user_profile', user_id=friend_user.id)
-
-@login_required
-def unfriend(request, user_id):
-    friend_user = get_object_or_404(UserProfile, id=user_id)
-    request.user.profile.friends.remove(friend_user)
-    messages.success(request, f'You are no longer friends with {friend_user.user.username}')
-    return redirect('pages/user_profile', user_id=friend_user.id)
 
 @login_required
 def search(request):
@@ -158,18 +155,25 @@ def newsfeed(request):
         post.like_count = post.likes.count()
     return render(request, 'pages/newsfeed.html', {'posts': posts})
 
+@login_required
 def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            post.user = request.user  # set the user field to the current user
+            post.user = request.user
             post.save()
-            messages.success(request, 'Your post has been created!')
-            return redirect('home')
+
+            # Update user profile statistics
+            user_profile = UserProfile.objects.get(user=request.user)
+            user_profile.num_posts += 1
+            user_profile.save()
+
+            return redirect('pages/newsfeed')
     else:
         form = PostForm()
-    return render(request, 'create_post.html', {'form': form})
+
+    return render(request, 'pages/create_post.html', {'form': form})
 
 
 def posts(request):
@@ -233,13 +237,20 @@ def like_post(request, post_id):
     if post.likes.filter(id=request.user.id).exists():
         # User has already liked this post, remove the like
         post.likes.remove(request.user)
+        like_added = False
     else:
         # User hasn't liked this post yet, add the like
         post.likes.add(request.user)
+        like_added = True
 
-    # Redirect the user back to the newsfeed page
-    return redirect('newsfeed')
+    # Create a dictionary to return as JSON response
+    data = {
+        'like_added': like_added,
+        'num_likes': post.likes.count()
+    }
+
     return JsonResponse(data)
+
 
 def comment_post(request):
     if request.method == 'POST':
@@ -249,8 +260,12 @@ def comment_post(request):
             post = Post.objects.get(pk=post_id)
             comment = Comment(text=form.cleaned_data['text'], post=post, author=request.user)
             comment.save()
+            messages.success(request, 'Your comment has been posted.')
             return redirect('post_detail', post_id=post_id)
+
+    messages.error(request, 'There was an error posting your comment.')
     return redirect('home')
 
 def settings(request):
     return render(request, 'pages/settings.html')
+

@@ -1,13 +1,13 @@
-<!-- friends.html -->
+<!-- following.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Friends</h1>
+  <h1>Following</h1>
   <ul>
     {% for friend in friends %}
       <li>{{ friend.username }}</li>
     {% empty %}
-      <li>No friends yet.</li>
+      <li>You aren't following anybody yet.</li>
     {% endfor %}
   </ul>
 {% endblock %}

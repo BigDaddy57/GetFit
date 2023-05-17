@@ -11,11 +11,11 @@
   <nav>
     {% if user.is_authenticated %}
     <a href="{% url 'logout' %}">Logout</a>
-    <a href="{% url 'index' %}">home</a>   
+    <a href="{% url 'index' %}">Home</a>   
     <a class="nav-link" href="{% url 'newsfeed' %}">Newsfeed</a>
-    <a href="{% url 'user_list' %}">users</a>
+    <a href="{% url 'user_list' %}">Users</a>
     <a href="{% url 'pages/user_profile' user.id %}">Profile</a>
-    <a class="nav-link" href="{% url 'friends' user.id %}">Friends</a>
+    <a class="nav-link" href="{% url 'following' user.id %}">Following</a>
     <a class="nav-link" href="{% url 'followers' user.id %}">Followers</a>
     <a class="nav-link" href="{% url 'settings' %}">Settings</a>
     <form method="GET" action="{% url 'search' %}">

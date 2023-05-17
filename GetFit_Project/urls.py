@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from GetFit.views import friends_view, index,home,RegisterView, unfriend
+from GetFit.views import following_view, index,home,RegisterView, unfollow_view
 from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
 from GetFit import views
@@ -39,17 +39,17 @@ urlpatterns = [
     path('user/<int:user_id>/', views.user_profile, name='pages/user_profile'),
     path('user/<int:user_id>/edit/', views.edit_profile, name='edit_profile'),
     path('followers/<int:user_id>/', views.followers_view, name='followers'),
-    path('friends/<int:user_id>/', views.friends_view, name='friends'),
+    path('following/<int:user_id>/', views.following_view, name='following'),
     path('user/<int:user_id>/follow/', follow_view, name='follow'),
     path('user/<int:user_id>/unfollow/', unfollow_view, name='unfollow'),
-    path('friend/<int:user_id>/', views.friends, name='friend'),
-    path('unfriend/<int:user_id>/', views.unfriend, name='unfriend'),
+    path('friend/<int:user_id>/', views.following_view, name='follow'),
+    path('unfriend/<int:user_id>/', views.unfollow_view, name='unfollow'),
     path('search/', views.search, name='search'),
     path('user/<int:user_id>/follow/', views.follow_view, name='follow'),
     path('user/<int:user_id>/follow/', views.follow_view, name='follow'),
     path('user/<int:user_id>/unfollow/', views.unfollow_view, name='unfollow'),
-    path('user/<int:user_id>/friend/', friends_view, name='friend'),
-    path('user/<int:user_id>/unfriend/', unfriend, name='unfriend'),
+    path('user/<int:user_id>/friend/', following_view, name='friend'),
+    path('user/<int:user_id>/unfriend/', unfollow_view, name='unfriend'),
     path('user/<int:user_id>/', views.user_profile, name='user_profile'),
     path('newsfeed/', views.newsfeed, name='newsfeed'),
     path('newsfeed/posts/', views.posts, name='posts'),
@@ -61,7 +61,4 @@ urlpatterns = [
     path('posts/like/<int:post_id>/', views.like_post, name='like_post'),
     path('posts/share/<int:post_id>/', views.share_post, name='share_post'),
     path('pages/settings/', views.settings, name='settings'),
-    
     ]
-
-

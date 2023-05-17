@@ -9,33 +9,19 @@
 {% endif %}
 {% if not user.profile == request.user.profile %}
   {% if user.profile in request.user.profile.friends.all %}
-    <a href="{% url 'unfriend' user_id=user.id %}">Unfriend</a>
+    <a href="{% url 'unfollow' user_id=user.id %}">Unfollow</a>
   {% else %}
-    <a href="{% url 'friend' user_id=user.id %}">Friend</a>
+    <a href="{% url 'following' user_id=user.id %}">Follow</a>
   {% endif %}
 {% endif %}
   <a href="{% url 'edit_profile' user_id=user.id %}">Edit Profile</a>
-  <div class="user-stats">
-    <div class="post-count">
-        <span class="count">{{ post_count }}</span>
-        <span class="label">Posts</span>
-    </div>
-    <div class="like-count">
-        <span class="count">{{ like_count }}</span>
-        <span class="label">Likes</span>
-    </div>
-    <div class="follower-count">
-        <span class="count">{{ follower_count }}</span>
-        <span class="label">Followers</span>
-    </div>
-  </div>
   {% if profile.profile_picture %}
     <img src="{{ profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture">
   {% endif %}
   {% if profile.bio %}
     <p>{{ profile.bio }}</p>
-    <a href="{% url 'followers' user.id %}"> Followers: {{ profile.followers.count }}</a>
-    <a href="{% url 'friends' user.id %}">friends: {{ profile.friends.count }}</a>
+    <a href="{% url 'followers' user.id %}">Followers: {{ profile.followers.all|length }}</a>
+    <a href="{% url 'following' user.id %}">Following: {{ profile.following.all|length }}</a>
 {% endif %}
   {% if profile.age %}
     <p>Age: {{ profile.age }}</p>
