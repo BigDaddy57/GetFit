@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Create Chat</h2>
+  <form method="post" action="{% url 'create_chat' %}">
+    {% csrf_token %}
+    <select name="participants" multiple>
+      {% for user in users %}
+        <option value="{{ user.id }}">{{ user.username }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Create Chat</button>
+  </form>
+{% endblock %}

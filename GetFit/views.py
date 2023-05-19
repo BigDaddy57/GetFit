@@ -28,6 +28,9 @@ from .forms import CreateCommentForm
 from .models import Post, Comment
 from .models import Post, Share
 from django.http import JsonResponse
+from .models import Chat, Message
+from django.core.exceptions import PermissionDenied
+
 
 @login_required
 def index(request):
@@ -268,4 +271,76 @@ def comment_post(request):
 
 def settings(request):
     return render(request, 'pages/settings.html')
+
+def chat_list(request):
+    # Get the current user
+    user = request.user
+
+    # Retrieve the chats associated with the user
+    chats = Chat.objects.filter(participants=user)
+
+    # Create a dictionary to store the user and their chat notifications
+    chat_notifications = {}
+
+    # Iterate over the chats and group them by user
+    for chat in chats:
+        # Get the other participant in the chat
+        other_participant = chat.participants.exclude(id=user.id).first()
+
+        # Add the chat to the user's notifications list
+        chat_notifications.setdefault(other_participant, []).append(chat)
+
+    context = {
+        'chats': chat_notifications,
+    }
+
+    return render(request, 'chat/chat_list.html', context) 
+
+
+@login_required
+def chat_detail(request, chat_id):
+    chat = get_object_or_404(Chat, id=chat_id, participants=request.user)
+    messages = chat.messages.order_by('timestamp')
+    return render(request, 'chat/chat_detail.html', {'chat': chat, 'messages': messages})
+
+@login_required
+def create_chat(request):
+    if request.method == 'POST':
+        participants = request.POST.getlist('participants')
+        chat = Chat.objects.create()
+        chat.participants.add(request.user, *participants)
+        return redirect('chat/chat_detail', chat_id=chat.id)
+    else:
+        users = User.objects.exclude(id=request.user.id)
+        return render(request, 'chat/create_chat.html', {'users': users})
+
+@login_required
+def send_message(request, chat_id):
+    chat = get_object_or_404(Chat, id=chat_id, participants=request.user)
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        sender = request.user
+        Message.objects.create(chat=chat, sender=sender, content=content)
+        return redirect('chat/chat_detail', chat_id=chat.id)
+
+@login_required
+def delete_chat(request, user_id):
+    try:
+        chat = Chat.objects.get(participants=request.user, participants__id=user_id)
+    except Chat.DoesNotExist:
+        raise PermissionDenied
+    
+    # Check if the user has permission to delete the chat
+    if request.user != chat.participants.get(id=user_id):
+        raise PermissionDenied
+
+    # Delete the chat
+    chat.delete()
+
+    # Display a success message
+    messages.success(request, 'Chat deleted successfully.')
+
+    # Redirect back to the chat list
+    return redirect('chat_list')
+
 

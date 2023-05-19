@@ -25,6 +25,8 @@ from GetFit.views import user_profile
 from GetFit.views import follow_view, unfollow_view
 from GetFit.views import search
 from GetFit.views import like_post, comment_post, share_post
+from GetFit.views import delete_chat
+
 
 
 
@@ -61,4 +63,9 @@ urlpatterns = [
     path('posts/like/<int:post_id>/', views.like_post, name='like_post'),
     path('posts/share/<int:post_id>/', views.share_post, name='share_post'),
     path('pages/settings/', views.settings, name='settings'),
+    path('chats/', views.chat_list, name='chat_list'), 
+    path('chat_detail/<int:chat_id>/', views.chat_detail, name='chat_detail'),
+    path('create_chat/', views.create_chat, name='create_chat'),
+    path('send_message/<int:chat_id>/', views.send_message, name='send_message'),
+    path('chat/delete/<int:user_id>/', delete_chat, name='delete_chat'),
     ]

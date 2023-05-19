@@ -1,0 +1,23 @@
+<!-- chat_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Chat List</h2>
+  <ul>
+    {% for user, notifications in chats.items %}
+      <li>
+        <a href="{% url 'chat_detail' notifications.0.id %}">{{ user.username }}</a>
+        {% if notifications|length > 1 %}
+          <span class="notification">{{ notifications|length }}</span>
+        {% endif %}
+        <form action="{% url 'delete_chat' user.id %}" method="post" class="delete-form">
+          {% csrf_token %}
+          <button type="submit" class="delete-button">Delete</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>No chats available.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'create_chat' %}">Create Chat</a> 
+{% endblock %}

@@ -51,3 +51,25 @@ class Share(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+class Chat(models.Model):
+    participants = models.ManyToManyField(User)
+    created_at = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=255)
+    is_group_chat = models.BooleanField(default=False)
+    last_message = models.ForeignKey('Message', on_delete=models.SET_NULL, null=True, related_name='chat_last_message')
+    unread_messages = models.PositiveIntegerField(default=0)
+    is_archived = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
+
+class Message(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Message by {self.sender.username} in {self.chat.title}'
