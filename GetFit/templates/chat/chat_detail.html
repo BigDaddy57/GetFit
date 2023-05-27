@@ -5,6 +5,8 @@
   <div class="messages">
     {% for message in messages %}
       <p>{{ message.sender }}: {{ message.content }}</p>
+    {% empty %}
+      <p>No messages available.</p>
     {% endfor %}
   </div>
 

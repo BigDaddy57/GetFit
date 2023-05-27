@@ -63,9 +63,9 @@ urlpatterns = [
     path('posts/like/<int:post_id>/', views.like_post, name='like_post'),
     path('posts/share/<int:post_id>/', views.share_post, name='share_post'),
     path('pages/settings/', views.settings, name='settings'),
-    path('chats/', views.chat_list, name='chat_list'), 
-    path('chat_detail/<int:chat_id>/', views.chat_detail, name='chat_detail'),
+    path('chats/', views.chat_list, name='chat_list'),
     path('create_chat/', views.create_chat, name='create_chat'),
+    path('chat_detail/<int:chat_id>/', views.chat_detail, name='chat_detail'),
     path('send_message/<int:chat_id>/', views.send_message, name='send_message'),
-    path('chat/delete/<int:user_id>/', delete_chat, name='delete_chat'),
-    ]
+    path('chat/delete/<int:user_id>/', views.delete_chat, name='delete_chat'),
+]

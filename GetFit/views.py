@@ -20,7 +20,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from .forms import UserProfileForm
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from .models import Post, UserProfile
 from .forms import PostForm
@@ -67,7 +67,7 @@ class RegisterView(SuccessMessageMixin, CreateView):
         user_profile.save()
         return response
 
- 
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('/')
@@ -94,6 +94,7 @@ def edit_profile(request, user_id):
         form = UserProfileForm(instance=user.userprofile)
     return render(request, 'pages/edit_profile.html', {'form': form})
 
+@login_required
 def followers_view(request, user_id):
     user_profile = get_object_or_404(UserProfile, user_id=user_id)
     followers = User.objects.filter(id__in=user_profile.followers.all())
@@ -152,6 +153,7 @@ def search(request):
         results = []
     return render(request, 'pages/search_results.html', {'users': results, 'query': query})
 
+@login_required
 def newsfeed(request):
     posts = Post.objects.all().order_by('-timestamp')
     for post in posts:
@@ -178,7 +180,7 @@ def create_post(request):
 
     return render(request, 'pages/create_post.html', {'form': form})
 
-
+@login_required
 def posts(request):
     return render(request, 'getfit/posts/posts.html')
 
@@ -254,7 +256,7 @@ def like_post(request, post_id):
 
     return JsonResponse(data)
 
-
+@login_required
 def comment_post(request):
     if request.method == 'POST':
         form = CreateCommentForm(request.POST)
@@ -269,9 +271,11 @@ def comment_post(request):
     messages.error(request, 'There was an error posting your comment.')
     return redirect('home')
 
+@login_required
 def settings(request):
     return render(request, 'pages/settings.html')
 
+@login_required
 def chat_list(request):
     # Get the current user
     user = request.user
@@ -287,14 +291,16 @@ def chat_list(request):
         # Get the other participant in the chat
         other_participant = chat.participants.exclude(id=user.id).first()
 
-        # Add the chat to the user's notifications list
-        chat_notifications.setdefault(other_participant, []).append(chat)
+        # Ensure the other participant exists
+        if other_participant:
+            # Add the chat to the user's notifications list
+            chat_notifications.setdefault(other_participant, []).append(chat)
 
     context = {
         'chats': chat_notifications,
     }
 
-    return render(request, 'chat/chat_list.html', context) 
+    return render(request, 'chat/chat_list.html', context)
 
 
 @login_required
@@ -307,40 +313,40 @@ def chat_detail(request, chat_id):
 def create_chat(request):
     if request.method == 'POST':
         participants = request.POST.getlist('participants')
-        chat = Chat.objects.create()
-        chat.participants.add(request.user, *participants)
-        return redirect('chat/chat_detail', chat_id=chat.id)
+        chat = Chat.objects.create(title='New Chat')
+        chat.participants.set(participants)
+        return redirect('chat_detail', chat.id)
     else:
         users = User.objects.exclude(id=request.user.id)
         return render(request, 'chat/create_chat.html', {'users': users})
 
 @login_required
 def send_message(request, chat_id):
-    chat = get_object_or_404(Chat, id=chat_id, participants=request.user)
     if request.method == 'POST':
-        content = request.POST.get('content')
+        chat = Chat.objects.get(id=chat_id)
         sender = request.user
-        Message.objects.create(chat=chat, sender=sender, content=content)
-        return redirect('chat/chat_detail', chat_id=chat.id)
+        content = request.POST['content']
+        message = Message.objects.create(chat=chat, sender=sender, content=content)
+        return redirect('chat_detail', chat_id=chat.id)
 
 @login_required
 def delete_chat(request, user_id):
-    try:
-        chat = Chat.objects.get(participants=request.user, participants__id=user_id)
-    except Chat.DoesNotExist:
-        raise PermissionDenied
-    
-    # Check if the user has permission to delete the chat
-    if request.user != chat.participants.get(id=user_id):
+    chats = Chat.objects.filter(participants__id=user_id)
+
+    # Check if the user has permission to delete any of the chats
+    chat_to_delete = None
+    for chat in chats:
+        if request.user in chat.participants.all():
+            chat_to_delete = chat
+            break
+
+    if chat_to_delete is None:
         raise PermissionDenied
 
-    # Delete the chat
-    chat.delete()
-
-    # Display a success message
+    chat_to_delete.delete()
     messages.success(request, 'Chat deleted successfully.')
 
-    # Redirect back to the chat list
     return redirect('chat_list')
+
 
 

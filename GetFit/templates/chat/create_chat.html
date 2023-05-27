@@ -2,7 +2,7 @@
 
 {% block content %}
   <h2>Create Chat</h2>
-  <form method="post" action="{% url 'create_chat' %}">
+  <form method="post" action="{% url 'create_chat' %}" enctype="multipart/form-data">
     {% csrf_token %}
     <select name="participants" multiple>
       {% for user in users %}
