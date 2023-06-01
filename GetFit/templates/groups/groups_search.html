@@ -1,0 +1,21 @@
+<!-- groups_search.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Group Search Results</h2>
+
+  <form action="{% url 'groups_search' %}" method="GET">
+    <input type="text" name="q" placeholder="Search groups" value="{{ query }}">
+    <button type="submit">Search</button>
+  </form>
+
+  {% if groups %}
+    <ul>
+      {% for group in groups %}
+        <li><a href="{% url 'group_detail' group_id=group.id %}">{{ group.name }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No groups found.</p>
+  {% endif %}
+{% endblock %}

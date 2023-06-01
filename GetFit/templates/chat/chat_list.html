@@ -1,25 +1,34 @@
+<!-- chat_list.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Chat List</h2>
-<ul>
-  {% for user, notifications in chats.items %}
-    <li>
-      <a href="{% url 'chat_detail' notifications.0.id %}">{{ user.username }}</a>
-      {% if notifications|length > 1 %}
-        <span class="notification">{{ notifications|length }}</span>
-      {% endif %}
-      {% if user.id %}
-        <form action="{% url 'delete_chat' user.id %}" method="post" class="delete-form">
+  <h2>Chat List</h2>
+  <ul>
+    {% for chat in chats %}
+      <li>
+        <a href="{% url 'chat_detail' chat.id %}">{{ chat.title }}</a>
+        {% if chat.unread_messages > 0 %}
+          <span class="notification">{{ chat.unread_messages }}</span>
+        {% endif %}
+        {% if chat.last_message %}
+          <p>Last message: {{ chat.last_message.content }}</p>
+        {% endif %}
+        <form action="{% url 'delete_chat' chat.id %}" method="post" class="delete-form">
           {% csrf_token %}
           <button type="submit" class="delete-button">Delete</button>
         </form>
-      {% endif %}
-    </li>
-  {% empty %}
-    <li>No chats available.</li>
-  {% endfor %}
-</ul>
+      </li>
+      <li>
+        {% for participant in chat.participants.all %}
+          {% if participant != request.user %}
+            <a href="{% url 'chat_detail' chat.id %}">Chat with {{ participant.username }}</a>
+          {% endif %}
+        {% endfor %}
+      </li>
+    {% empty %}
+      <li>No chats available.</li>
+    {% endfor %}
+  </ul>
 
-<a href="{% url 'create_chat' %}">Create Chat</a>
+  <a href="{% url 'create_chat' %}">Create Chat</a>
 {% endblock %}

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
 from .models import Post
+from .models import Group
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -22,3 +23,8 @@ class PostForm(forms.ModelForm):
 
 class CreateCommentForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea(attrs={'rows':3}), max_length=500)
+
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ['name', 'description']

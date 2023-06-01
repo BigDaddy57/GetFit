@@ -30,7 +30,9 @@ from .models import Post, Share
 from django.http import JsonResponse
 from .models import Chat, Message
 from django.core.exceptions import PermissionDenied
-
+from django.db.models import Q
+from .forms import GroupForm
+from .models import Group
 
 @login_required
 def index(request):
@@ -275,29 +277,23 @@ def comment_post(request):
 def settings(request):
     return render(request, 'pages/settings.html')
 
+
 @login_required
 def chat_list(request):
-    # Get the current user
     user = request.user
+    chats = Chat.objects.filter(participants=user) | Chat.objects.filter(is_group_chat=True)
 
-    # Retrieve the chats associated with the user
-    chats = Chat.objects.filter(participants=user)
-
-    # Create a dictionary to store the user and their chat notifications
-    chat_notifications = {}
-
-    # Iterate over the chats and group them by user
     for chat in chats:
-        # Get the other participant in the chat
-        other_participant = chat.participants.exclude(id=user.id).first()
+        last_message = chat.messages.order_by('-timestamp').first()
+        chat.last_message = last_message
 
-        # Ensure the other participant exists
-        if other_participant:
-            # Add the chat to the user's notifications list
-            chat_notifications.setdefault(other_participant, []).append(chat)
+        if last_message:
+            chat.unread_messages = chat.messages.exclude(sender=user, is_read=True).count()
+        else:
+            chat.unread_messages = 0
 
     context = {
-        'chats': chat_notifications,
+        'chats': chats,
     }
 
     return render(request, 'chat/chat_list.html', context)
@@ -305,20 +301,36 @@ def chat_list(request):
 
 @login_required
 def chat_detail(request, chat_id):
-    chat = get_object_or_404(Chat, id=chat_id, participants=request.user)
-    messages = chat.messages.order_by('timestamp')
+    chat = get_object_or_404(Chat, id=chat_id)
+    messages = Message.objects.filter(chat=chat).order_by('timestamp')
+
+    # Retrieve the last message
+    last_message = messages.last()
+
+    # Update the last_message field of the chat
+    chat.last_message = last_message
+    chat.save()
+
     return render(request, 'chat/chat_detail.html', {'chat': chat, 'messages': messages})
 
+# create_chat view
 @login_required
 def create_chat(request):
     if request.method == 'POST':
         participants = request.POST.getlist('participants')
-        chat = Chat.objects.create(title='New Chat')
-        chat.participants.set(participants)
-        return redirect('chat_detail', chat.id)
+        chat = Chat.objects.create(title='New Chat', is_group_chat=True)  # Create a group chat
+        
+        for participant_id in participants:
+            participant = User.objects.get(id=participant_id)
+            chat.participants.add(participant)
+        
+        chat.save()
+
+        return redirect('chat_detail', chat_id=chat.id)
     else:
         users = User.objects.exclude(id=request.user.id)
         return render(request, 'chat/create_chat.html', {'users': users})
+
 
 @login_required
 def send_message(request, chat_id):
@@ -327,26 +339,79 @@ def send_message(request, chat_id):
         sender = request.user
         content = request.POST['content']
         message = Message.objects.create(chat=chat, sender=sender, content=content)
+        chat.last_message = message
+        chat.save()  # Save the chat
         return redirect('chat_detail', chat_id=chat.id)
 
+
+
 @login_required
-def delete_chat(request, user_id):
-    chats = Chat.objects.filter(participants__id=user_id)
+def delete_chat(request, chat_id):
+    chat = get_object_or_404(Chat, id=chat_id)
 
-    # Check if the user has permission to delete any of the chats
-    chat_to_delete = None
-    for chat in chats:
-        if request.user in chat.participants.all():
-            chat_to_delete = chat
-            break
-
-    if chat_to_delete is None:
+    # Check if the current user is a participant in the chat
+    if request.user not in chat.participants.all():
         raise PermissionDenied
 
-    chat_to_delete.delete()
+    chat.delete()
     messages.success(request, 'Chat deleted successfully.')
 
     return redirect('chat_list')
 
+@login_required
+def groups_list(request):
+    groups = Group.objects.filter(members=request.user)
 
+    if request.method == 'GET':
+        query = request.GET.get('q')
+        if query:
+            groups = groups.filter(name__icontains=query)
 
+    return render(request, 'groups/groups_list.html', {'groups': groups})
+
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        form = GroupForm(request.POST)
+        if form.is_valid():
+            group = form.save()
+            group.members.add(request.user)
+            return redirect('group_detail', group_id=group.id)
+    else:
+        form = GroupForm()
+    return render(request, 'groups/create_group.html', {'form': form})
+
+@login_required
+def group_detail(request, group_id):
+    group = Group.objects.get(id=group_id)
+    return render(request, 'groups/group_detail.html', {'group': group})
+
+@login_required
+def groups_search(request):
+    query = request.GET.get('q')
+    groups = Group.objects.filter(name__icontains=query)
+
+    return render(request, 'groups/groups_search.html', {'groups': groups, 'query': query})
+
+@login_required
+def join_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+
+    if request.user not in group.members.all():
+        group.members.add(request.user)
+
+    return redirect('group_detail', group_id=group_id)
+
+@login_required
+def delete_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+
+    # Check if the current user is the creator of the group
+    if group.creator == request.user:
+        # Delete the group
+        group.delete()
+        messages.success(request, 'Group deleted successfully.')
+    else:
+        messages.error(request, 'You are not authorized to delete this group.')
+
+    return redirect('groups_list')

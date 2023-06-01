@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ group.name }}</h1>
+  <p>{{ group.description }}</p>
+  <h2>Members</h2>
+  <ul>
+    {% for member in group.members.all %}
+      <li>{{ member.username }}</li>
+    {% empty %}
+      <li>No members yet.</li>
+    {% endfor %}
+  </ul>
+  
+  {% if group.creator == request.user %}
+    <form action="{% url 'delete_group' group_id=group.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit">Delete Group</button>
+    </form>
+  {% endif %}
+{% endblock %}

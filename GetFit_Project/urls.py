@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from GetFit.views import following_view, index,home,RegisterView, unfollow_view
+from GetFit.views import following_view, groups_list, index,home,RegisterView, unfollow_view
 from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
 from GetFit import views
@@ -67,5 +67,12 @@ urlpatterns = [
     path('create_chat/', views.create_chat, name='create_chat'),
     path('chat_detail/<int:chat_id>/', views.chat_detail, name='chat_detail'),
     path('send_message/<int:chat_id>/', views.send_message, name='send_message'),
-    path('chat/delete/<int:user_id>/', views.delete_chat, name='delete_chat'),
+    path('chat/delete/<int:chat_id>/', delete_chat, name='delete_chat'),
+    path('groups/', groups_list, name='groups_list'),
+    path('groups/search/', views.groups_search, name='groups_search'),
+    path('groups/create/', views.create_group, name='create_group'),
+    path('groups/<int:group_id>/', views.group_detail, name='group_detail'),
+    path('groups/<int:group_id>/join/', views.join_group, name='join_group'),
+    path('groups/<int:group_id>/delete/', views.delete_group, name='delete_group'),
+
 ]
