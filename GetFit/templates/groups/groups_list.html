@@ -1,0 +1,22 @@
+<!-- groups_list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Groups</h1>
+  
+  <form action="{% url 'groups_search' %}" method="GET">
+    <input type="text" name="q" placeholder="Search for groups">
+    <button type="submit">Search</button>
+  </form>
+
+  <h2>Your Groups</h2>
+  <ul>
+    {% for group in groups %}
+      <li>{{ group.name }}</li>
+    {% empty %}
+      <li>You are not a member of any group.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'create_group' %}">Create New Group</a>
+{% endblock %}
