@@ -3,6 +3,20 @@
 {% block content %}
   <h1>{{ group.name }}</h1>
   <p>{{ group.description }}</p>
+  
+  <h2>Privacy:</h2>
+  {% if group.privacy == 'public' %}
+    <p>Public - Anyone can join</p>
+  {% elif group.privacy == 'private' %}
+    {% if request.user in group.members.all %}
+      <p>Private</p>
+    {% else %}
+      <p>Private - Contact the group admin for membership</p>
+    {% endif %}
+  {% elif group.privacy == 'invitation' %}
+    <p>Invitation-only - You need an invitation to join</p>
+  {% endif %}
+  
   <h2>Members</h2>
   <ul>
     {% for member in group.members.all %}
@@ -11,11 +25,24 @@
       <li>No members yet.</li>
     {% endfor %}
   </ul>
-  
-  {% if group.creator == request.user %}
-    <form action="{% url 'delete_group' group_id=group.id %}" method="post">
-      {% csrf_token %}
-      <button type="submit">Delete Group</button>
-    </form>
+
+  {% if request.user not in group.members.all %}
+    {% if group.privacy == 'public' %}
+      <a href="{% url 'join_group' group_id=group.id %}">Join Group</a>
+    {% elif group.privacy == 'private' %}
+        {% if request.user in group.join_requests.all.user %}   
+        <p>Request to join sent</p>
+      {% else %}
+        <a href="{% url 'join_group' group_id=group.id %}">Request to Join</a>
+      {% endif %}
+    {% elif group.privacy == 'invitation' %}
+      <p>Join by invitation only</p>
+    {% endif %}
   {% endif %}
+
+  {% if request.user in group.members.all %}
+    <a href="{% url 'group_requests' group_id=group.id %}">View Join Requests</a>
+  {% endif %}
+  
+  <a href="{% url 'groups_list' %}">Back to Groups</a>
 {% endblock %}

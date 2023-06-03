@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Join Requests for {{ group.name }}</h1>
+
+  <ul>
+    {% for request in requests %}
+      <li>
+        {{ request.user.username }} - {{ request.get_status_display }}
+        {% if request.status == 'pending' %}
+          <a href="{% url 'accept_request' group_id=group.id request_id=request.id %}">Accept</a>
+          <a href="{% url 'deny_request' group_id=group.id request_id=request.id %}">Deny</a>
+        {% endif %}
+      </li>
+    {% empty %}
+      <li>No join requests.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'group_detail' group_id=group.id %}">Back to Group</a>
+{% endblock %}

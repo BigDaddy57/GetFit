@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Group Settings - {{ group.name }}</h1>
+  
+  <form method="post" action="{% url 'group_settings' group_id=group.id %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Settings</button>
+  </form>
+{% endblock %}

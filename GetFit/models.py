@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 class UserProfile(models.Model):
@@ -77,10 +78,34 @@ class Message(models.Model):
         return f'Message by {self.sender.username} in {self.chat.title}'
 
 class Group(models.Model):
+    PRIVACY_CHOICES = (
+        ('public', 'Public'),
+        ('private', 'Private'),
+        ('invitation', 'Invitation-only'),
+    )
+    
     name = models.CharField(max_length=100)
     description = models.TextField()
     members = models.ManyToManyField(User, related_name='group_memberships')
     created_at = models.DateTimeField(auto_now_add=True)
+    privacy = models.CharField(max_length=20, choices=PRIVACY_CHOICES, default='public')
+    is_public = models.BooleanField(default=False)
+    join_requests = models.ManyToManyField(User, related_name='group_join_requests')
 
+    
     def __str__(self):
         return self.name
+
+class JoinRequest(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('denied', 'Denied'),
+    )
+
+    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f"Join request for {self.group.name} by {self.user.username}"

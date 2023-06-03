@@ -28,3 +28,11 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ['name', 'description']
+
+class GroupSettingsForm(forms.ModelForm):
+    class Meta:
+        model = Group
+        fields = ['name', 'description', 'privacy']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 4}),
+        }

@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from GetFit.views import following_view, groups_list, index,home,RegisterView, unfollow_view
+from GetFit.views import following_view, group_settings, groups_list, index,home,RegisterView, unfollow_view
 from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
 from GetFit import views
@@ -74,5 +74,12 @@ urlpatterns = [
     path('groups/<int:group_id>/', views.group_detail, name='group_detail'),
     path('groups/<int:group_id>/join/', views.join_group, name='join_group'),
     path('groups/<int:group_id>/delete/', views.delete_group, name='delete_group'),
+    path('groups/<int:group_id>/settings/', group_settings, name='group_settings'),
+    path('group/<int:group_id>/request-join/', views.request_join_group, name='request_join_group'),
+    path('groups/<int:group_id>/requests/', views.group_requests, name='group_requests'),
+    path('groups/<int:group_id>/requests/accept/<int:request_id>/', views.accept_request, name='accept_request'),
+    path('groups/<int:group_id>/requests/deny/<int:request_id>/', views.deny_request, name='deny_request'),
+
+
 
 ]
