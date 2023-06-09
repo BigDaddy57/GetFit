@@ -90,11 +90,22 @@ class Group(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     privacy = models.CharField(max_length=20, choices=PRIVACY_CHOICES, default='public')
     is_public = models.BooleanField(default=False)
-    join_requests = models.ManyToManyField(User, related_name='group_join_requests')
+    invited_users = models.CharField(max_length=255, blank=True)
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='admin_of')
 
-    
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Only for new instances
+            super().save(*args, **kwargs)
+            self.admin = self.members.first()  # Assign the first member as admin
+            super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
+
+
+
 
 class JoinRequest(models.Model):
     STATUS_CHOICES = (
@@ -103,9 +114,21 @@ class JoinRequest(models.Model):
         ('denied', 'Denied'),
     )
 
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='join_requests')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     def __str__(self):
         return f"Join request for {self.group.name} by {self.user.username}"
+
+class Discussion(models.Model):
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='discussions')
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    video = models.FileField(upload_to='discussions/videos', null=True, blank=True)
+    image = models.ImageField(upload_to='discussions/images', null=True, blank=True)
+
+    def __str__(self):
+        return self.title

@@ -1,11 +1,45 @@
+<!-- group_settings.html -->
 {% extends 'base.html' %}
 
 {% block content %}
   <h1>Group Settings - {{ group.name }}</h1>
   
+  <!-- Add this section to display messages -->
+  {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  
+  <h2>Members</h2>
+  <ul>
+    {% for member in group.members.all %}
+      <li>{{ member.username }} - <a href="{% url 'kick_member' group_id=group.id member_id=member.id %}">Kick</a></li>
+    {% empty %}
+      <li>No members yet.</li>
+    {% endfor %}
+  </ul>
+  
+  <h2>Invite Users</h2>
+  <form method="post">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <button type="submit">Invite</button>
+  </form>
+  
+  <h2>Edit Group Name and Description</h2>
   <form method="post" action="{% url 'group_settings' group_id=group.id %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Save Settings</button>
+  </form>
+  
+  <h2>Delete Group</h2>
+  <form method="post" action="{% url 'delete_group' group_id=group.id %}">
+    {% csrf_token %}
+    <button type="submit">Delete Group</button>
   </form>
 {% endblock %}

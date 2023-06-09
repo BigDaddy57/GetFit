@@ -24,6 +24,8 @@
       <input type="text" name="q" placeholder="Search...">
       <button type="submit">Search</button>
     </form> 
+    <input type="text" id="user-input">
+<div id="chat-container"></div>
   </form>
   {% else %}
       <a href="{% url 'login' %}">Login</a>
@@ -34,5 +36,39 @@
     <h1>Welcome to GetFit!</h1>
     <p>We are here to help you get fit and healthy!</p>
   {% endblock %}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Function to send a user message and receive a chatbot reply
+    function sendUserMessage(message) {
+        $.getJSON('/chatbot/', { input: message }, function(data) {
+            var chatbotReply = data.reply;
+            displayChatbotReply(chatbotReply);
+        });
+    }
+
+    // Function to display the chatbot's reply in the chat container
+    function displayChatbotReply(reply) {
+        var $chatContainer = $('#chat-container');
+        $chatContainer.append('<p><strong>Chatbot:</strong> ' + reply + '</p>');
+    }
+
+    // Event handler for user input
+    $('#user-input').keypress(function(event) {
+        if (event.which === 13) {
+            var userInput = $(this).val();
+            displayUserMessage(userInput);
+            sendUserMessage(userInput);
+            $(this).val('');
+        }
+    });
+
+    // Function to display the user's message in the chat container
+    function displayUserMessage(message) {
+        var $chatContainer = $('#chat-container');
+        $chatContainer.append('<p><strong>User:</strong> ' + message + '</p>');
+    }
+});
+</script>
 </body>
 </html>

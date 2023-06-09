@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Discussions for {{ group.name }}</h1>
+  <ul>
+    {% for discussion in discussions %}
+      <li><a href="{% url 'discussion_detail' group_id=group.id discussion_id=discussion.id %}">{{ discussion.title }}</a></li>
+    {% empty %}
+      <li>No discussions available.</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'group_detail' group_id=group.id %}">Back to Group</a>
+{% endblock %}

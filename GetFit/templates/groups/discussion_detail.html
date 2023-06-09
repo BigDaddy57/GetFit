@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>{{ discussion.title }}</h1>
+  <p>Author: {{ discussion.author.username }}</p>
+  <p>Content: {{ discussion.content }}</p>
+  {% if discussion.video %}
+  <video src="{{ discussion.video.url }}" controls></video>
+{% endif %}
+
+{% if discussion.image %}
+  <img src="{{ discussion.image.url }}" alt="Discussion Image">
+{% endif %}
+
+  <a href="{% url 'group_detail' group_id=group.id %}">Back to Group</a>
+{% endblock %}

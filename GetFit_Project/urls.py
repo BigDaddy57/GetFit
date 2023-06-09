@@ -26,6 +26,7 @@ from GetFit.views import follow_view, unfollow_view
 from GetFit.views import search
 from GetFit.views import like_post, comment_post, share_post
 from GetFit.views import delete_chat
+from chatbot.views import chatbot_view
 
 
 
@@ -75,11 +76,14 @@ urlpatterns = [
     path('groups/<int:group_id>/join/', views.join_group, name='join_group'),
     path('groups/<int:group_id>/delete/', views.delete_group, name='delete_group'),
     path('groups/<int:group_id>/settings/', group_settings, name='group_settings'),
-    path('group/<int:group_id>/request-join/', views.request_join_group, name='request_join_group'),
+    path('groups/<int:group_id>/kick/<int:member_id>/', views.kick_member, name='kick_member'),
+    path('group/<int:group_id>/request-join/', views.join_group, name='join_group'),
     path('groups/<int:group_id>/requests/', views.group_requests, name='group_requests'),
     path('groups/<int:group_id>/requests/accept/<int:request_id>/', views.accept_request, name='accept_request'),
     path('groups/<int:group_id>/requests/deny/<int:request_id>/', views.deny_request, name='deny_request'),
-
-
+    path('<int:group_id>/discussions/create/', views.create_discussion, name='create_discussion'),
+    path('<int:group_id>/discussions/', views.discussions_list, name='discussions_list'),
+    path('<int:group_id>/discussions/<int:discussion_id>/', views.discussion_detail, name='discussion_detail'),
+    path('chatbot/', chatbot_view, name='chatbot'),
 
 ]

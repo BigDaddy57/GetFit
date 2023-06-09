@@ -34,7 +34,9 @@ from django.db.models import Q
 from .forms import GroupForm
 from GetFit.forms import GroupSettingsForm
 from .models import JoinRequest
-
+from .models import Discussion
+from .forms import DiscussionForm
+from django.urls import reverse
 
 @login_required
 def index(request):
@@ -376,13 +378,16 @@ def create_group(request):
     if request.method == 'POST':
         form = GroupForm(request.POST)
         if form.is_valid():
-            group = form.save()
+            group = form.save(commit=False)
+            group.save()
             group.members.add(request.user)
             group.admin = request.user
+            group.save()  # Save the group after setting the admin
             return redirect('group_detail', group_id=group.id)
     else:
         form = GroupForm()
     return render(request, 'groups/create_group.html', {'form': form})
+
 
 @login_required
 def group_detail(request, group_id):
@@ -441,8 +446,9 @@ def delete_group(request, group_id):
 
     return render(request, 'groups/delete_group.html', {'group': group})
 
+@login_required
 def group_settings(request, group_id):
-    group = Group.objects.get(id=group_id)
+    group = get_object_or_404(Group, id=group_id)
 
     if request.method == 'POST':
         form = GroupSettingsForm(request.POST, instance=group)
@@ -452,67 +458,104 @@ def group_settings(request, group_id):
     else:
         form = GroupSettingsForm(instance=group)
 
-    return render(request, 'groups/group_settings.html', {'group': group, 'form': form})
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        if username:
+            try:
+                user = User.objects.get(username=username)
+                if user not in group.members.all() and username not in group.invited_users.split(','):
+                    # Send invitation message to the user
+                    messages.success(request, f'Invitation sent successfully to {user.username}.')  # Modify the message as per your requirement
+                    
+                    # Save the invitation in user's chat/messages
+                    invitation_message = f"You have been invited to join the group: {group.name}"
+                    # You can write code here to save the invitation message to user's chat/messages
+
+                    # Add the user to the invited_users field
+                    group.invited_users += f"{username},"
+                    group.save()
+                else:
+                    messages.error(request, 'User is already a member or has already been invited.')
+            except User.DoesNotExist:
+                messages.error(request, 'User does not exist.')
+
+    print(f"Group settings requested for group: {group.name}")
+
+    context = {
+        'group': group,
+        'form': form,
+    }
+    return render(request, 'groups/group_settings.html', context)
 
 @login_required
-def request_join_group(request, group_id):
+def kick_member(request, group_id, member_id):
+    group = get_object_or_404(Group, id=group_id)
+    member = get_object_or_404(User, id=member_id)
+
+    print(f"Kicking member: {member.username} from group: {group.name}")
+
+    if request.user == group.admin:
+        print("User is the group admin.")
+        group.members.remove(member)
+        group.save()
+        messages.success(request, 'Member kicked successfully.')
+    else:
+        print("User is not the group admin.")
+        messages.error(request, 'You do not have permission to kick members from this group.')
+
+    return redirect(reverse('group_settings', args=[group_id]))
+
+
+
+@login_required
+def join_group(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     user = request.user
 
-    if group.privacy == 'private':
-        # Group is private, user needs to request to join
-        if group.members.filter(id=user.id).exists():
-            # User is already a member
-            messages.warning(request, "You are already a member of this group.")
-        elif group.join_requests.filter(id=user.id).exists():
-            # User has already requested to join
-            messages.warning(request, "You have already requested to join this group.")
-        else:
-            # Create a join request
-            join_request = request_join_group.objects.create(group=group, user=user)
-            messages.success(request, "Your join request has been sent to the group admin.")
-
-    elif group.privacy == 'invitation':
-        # Group is invitation-only, user needs an invitation to join
-        if group.members.filter(id=user.id).exists():
-            # User is already a member
-            messages.warning(request, "You are already a member of this group.")
-        else:
-            # User is not a member, they need an invitation
+    if group.privacy == 'invitation':
+        if not group.invitations.filter(user=user).exists():
             messages.info(request, "You need an invitation to join this group.")
-    else:
-        # Group is public, anyone can join
-        if group.members.filter(id=user.id).exists():
-            # User is already a member
-            messages.warning(request, "You are already a member of this group.")
-        else:
-            # User is not a member, add them to the group
-            group.members.add(user)
-            messages.success(request, "You have joined the group successfully.")
+            return redirect('group_detail', group_id=group_id)
 
+    elif group.privacy == 'private':
+        if group.members.filter(id=user.id).exists():
+            messages.warning(request, "You are already a member of this group.")
+            return redirect('group_detail', group_id=group_id)
+
+        if group.join_requests.filter(user=user).exists():
+            messages.warning(request, "You have already requested to join this group.")
+            return redirect('group_detail', group_id=group_id)
+
+        join_request = JoinRequest(group=group, user=user)
+        join_request.save()
+        messages.success(request, "Your join request has been sent to the group admin.")
+        return redirect('group_detail', group_id=group_id)
+
+    group.members.add(user)
+    messages.success(request, "You have joined the group successfully.")
     return redirect('group_detail', group_id=group_id)
+
 
 @login_required
 def group_requests(request, group_id):
     group = get_object_or_404(Group, id=group_id)
-    
-
-    # Only group members can view the requests
-    if request.user not in group.members.all():
-        return HttpResponseForbidden("You are not a member of this group.")
-
-    requests = JoinRequest.objects.filter(group=group)
+    join_requests = group.join_requests.filter(status='pending')  # Exclude accepted requests
+    num_requests = join_requests.count()
 
     context = {
         'group': group,
-        'requests': requests,
+        'join_requests': join_requests,
+        'num_requests': num_requests,
     }
+
     return render(request, 'groups/group_requests.html', context)
+
+
 
 @login_required
 def accept_request(request, group_id, request_id):
     group = get_object_or_404(Group, id=group_id)
-    join_request = get_object_or_404(request_join_group, id=request_id)
+    join_request = get_object_or_404(JoinRequest, id=request_id)
 
     # Only group members can accept join requests
     if request.user not in group.members.all():
@@ -528,7 +571,7 @@ def accept_request(request, group_id, request_id):
 @login_required
 def deny_request(request, group_id, request_id):
     group = get_object_or_404(Group, id=group_id)
-    join_request = get_object_or_404(request_join_group, id=request_id)
+    join_request = get_object_or_404(JoinRequest, id=request_id)
 
     # Only group members can deny join requests
     if request.user not in group.members.all():
@@ -536,6 +579,38 @@ def deny_request(request, group_id, request_id):
 
     join_request.status = 'denied'
     join_request.save()
+    join_request.delete()
 
     messages.success(request, f"Join request from {join_request.user.username} has been denied.")
     return redirect('group_requests', group_id=group_id)
+
+@login_required
+def create_discussion(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+
+    if request.method == 'POST':
+        form = DiscussionForm(request.POST)
+        if form.is_valid():
+            discussion = form.save(commit=False)
+            discussion.group = group
+            discussion.author = request.user
+            discussion.save()
+            return redirect('group_detail', group_id=group_id)
+    else:
+        form = DiscussionForm()
+
+    return render(request, 'groups/create_discussion.html', {'group': group, 'form': form})
+
+@login_required
+def discussions_list(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    discussions = group.discussions.all()
+
+    return render(request, 'groups/discussions_list.html', {'group': group, 'discussions': discussions})
+
+@login_required
+def discussion_detail(request, group_id, discussion_id):
+    group = get_object_or_404(Group, id=group_id)
+    discussion = get_object_or_404(Discussion, id=discussion_id, group=group)
+
+    return render(request, 'groups/discussion_detail.html', {'group': group, 'discussion': discussion})

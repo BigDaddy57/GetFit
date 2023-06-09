@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import UserProfile
 from .models import Post
 from .models import Group
+from .models import Discussion
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -36,3 +37,9 @@ class GroupSettingsForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),
         }
+
+
+class DiscussionForm(forms.ModelForm):
+    class Meta:
+        model = Discussion
+        fields = ['title', 'content', 'video', 'image']

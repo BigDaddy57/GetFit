@@ -3,8 +3,12 @@
 {% block content %}
   <h1>Join Requests for {{ group.name }}</h1>
 
+  {% if group.privacy == 'private' %}
+    <p>{{ num_requests }} join request(s)</p>
+  {% endif %}
+
   <ul>
-    {% for request in requests %}
+    {% for request in join_requests %}
       <li>
         {{ request.user.username }} - {{ request.get_status_display }}
         {% if request.status == 'pending' %}

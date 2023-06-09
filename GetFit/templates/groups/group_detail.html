@@ -30,7 +30,7 @@
     {% if group.privacy == 'public' %}
       <a href="{% url 'join_group' group_id=group.id %}">Join Group</a>
     {% elif group.privacy == 'private' %}
-        {% if request.user in group.join_requests.all.user %}   
+      {% if request.user in group.join_requests.all %}
         <p>Request to join sent</p>
       {% else %}
         <a href="{% url 'join_group' group_id=group.id %}">Request to Join</a>
@@ -42,6 +42,9 @@
 
   {% if request.user in group.members.all %}
     <a href="{% url 'group_requests' group_id=group.id %}">View Join Requests</a>
+    <a href="{% url 'group_settings' group_id=group.id %}">Group Settings</a>
+    <a href="{% url 'create_discussion' group_id=group.id %}">Create Discussion</a>
+    <a href="{% url 'discussions_list' group_id=group.id %}">Discussions</a> <!-- Added discussions list link/button -->
   {% endif %}
   
   <a href="{% url 'groups_list' %}">Back to Groups</a>
