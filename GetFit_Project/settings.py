@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'GetFit',
     'django.contrib.postgres',
-    'requests',
 ]
 
 MIDDLEWARE = [

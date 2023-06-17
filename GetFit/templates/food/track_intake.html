@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Track Intake</title>
+</head>
+<body>
+    <h1>Track Intake</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Track Intake</button>
+    </form>
+</body>
+</html>
+{% endblock %}

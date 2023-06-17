@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Food</title>
+</head>
+<body>
+    <h1>Add Food</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Food</button>
+    </form>
+</body>
+</html>
+{% endblock %}

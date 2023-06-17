@@ -26,7 +26,7 @@ from GetFit.views import follow_view, unfollow_view
 from GetFit.views import search
 from GetFit.views import like_post, comment_post, share_post
 from GetFit.views import delete_chat
-from chatbot.views import chatbot_view
+
 
 
 
@@ -84,6 +84,10 @@ urlpatterns = [
     path('<int:group_id>/discussions/create/', views.create_discussion, name='create_discussion'),
     path('<int:group_id>/discussions/', views.discussions_list, name='discussions_list'),
     path('<int:group_id>/discussions/<int:discussion_id>/', views.discussion_detail, name='discussion_detail'),
-    path('chatbot/', chatbot_view, name='chatbot'),
+    path('food_tracking/', views.food_tracking, name='food_tracking'),
+    path('add-food/', views.add_food, name='add_food'),
+    path('create-meal/', views.create_meal, name='create_meal'),
+    path('track-intake/', views.track_intake, name='track_intake'),
+
 
 ]

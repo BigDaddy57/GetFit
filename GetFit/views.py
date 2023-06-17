@@ -1,3 +1,4 @@
+import datetime
 from multiprocessing import context
 import os
 from pdb import post_mortem
@@ -5,7 +6,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from pyparsing import FollowedBy
-import requests
 from GetFit_Project.settings import BASE_DIR
 from .models import UserProfile, Group
 from django.views.generic import ListView
@@ -37,6 +37,8 @@ from .models import JoinRequest
 from .models import Discussion
 from .forms import DiscussionForm
 from django.urls import reverse
+from .forms import FoodForm, MealForm, DailyIntakeForm
+from .models import Food, Meal, DailyIntake
 
 @login_required
 def index(request):
@@ -614,3 +616,50 @@ def discussion_detail(request, group_id, discussion_id):
     discussion = get_object_or_404(Discussion, id=discussion_id, group=group)
 
     return render(request, 'groups/discussion_detail.html', {'group': group, 'discussion': discussion})
+
+def food_tracking(request):
+    # Retrieve the current user
+    user = request.user
+
+    # Get the user's daily intake for today
+    today = datetime.date.today()
+    daily_intake = DailyIntake.objects.filter(user=user, date=today).first()
+
+    context = {
+        'user': user,
+        'daily_intake': daily_intake,
+    }
+
+    return render(request, 'food/food_tracking.html', context)
+
+def add_food(request):
+    if request.method == 'POST':
+        form = FoodForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('add_food')
+    else:
+        form = FoodForm()
+    return render(request, 'food/add_food.html', {'form': form})
+
+def create_meal(request):
+    if request.method == 'POST':
+        form = MealForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('create_meal')
+    else:
+        form = MealForm()
+    return render(request, 'food/create_meal.html', {'form': form})
+
+def track_intake(request):
+    if request.method == 'POST':
+        form = DailyIntakeForm(request.POST)
+        if form.is_valid():
+            intake = form.save(commit=False)
+            intake.user = request.user
+            intake.save()
+            return redirect('track_intake')
+    else:
+        form = DailyIntakeForm()
+    return render(request, 'food/track_intake.html', {'form': form})

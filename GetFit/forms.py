@@ -4,6 +4,7 @@ from .models import UserProfile
 from .models import Post
 from .models import Group
 from .models import Discussion
+from .models import Food, Meal, DailyIntake
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -43,3 +44,18 @@ class DiscussionForm(forms.ModelForm):
     class Meta:
         model = Discussion
         fields = ['title', 'content', 'video', 'image']
+
+class FoodForm(forms.ModelForm):
+    class Meta:
+        model = Food
+        fields = '__all__'
+
+class MealForm(forms.ModelForm):
+    class Meta:
+        model = Meal
+        fields = '__all__'
+
+class DailyIntakeForm(forms.ModelForm):
+    class Meta:
+        model = DailyIntake
+        exclude = ('user',)
