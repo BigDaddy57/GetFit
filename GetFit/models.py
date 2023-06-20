@@ -133,23 +133,3 @@ class Discussion(models.Model):
     def __str__(self):
         return self.title
 
-class Food(models.Model):
-    name = models.CharField(max_length=100)
-    serving_size = models.CharField(max_length=50)
-    calories = models.PositiveIntegerField()
-    protein = models.PositiveIntegerField()
-    carbs = models.PositiveIntegerField()
-    fats = models.PositiveIntegerField()
-    water_content = models.PositiveIntegerField()
-
-class Meal(models.Model):
-    name = models.CharField(max_length=100)
-    date = models.DateField()
-    foods = models.ManyToManyField(Food, related_name='meals')
-
-class DailyIntake(models.Model):
-    date = models.DateField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_calories = models.PositiveIntegerField()
-    total_water_intake = models.PositiveIntegerField()
-    meals = models.ManyToManyField(Meal, related_name='daily_intakes')
