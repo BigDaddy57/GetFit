@@ -133,3 +133,74 @@ class Discussion(models.Model):
     def __str__(self):
         return self.title
 
+class Food(models.Model):
+    name = models.CharField(max_length=200)
+    calories = models.FloatField()
+    protein = models.FloatField()
+    carbohydrates = models.FloatField()
+    fats = models.FloatField()
+    
+    def __str__(self):
+        return self.name
+    
+class FoodEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    food = models.ForeignKey(Food, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+    meal_type = models.CharField(max_length=200)
+    portion_size = models.DecimalField(max_digits=5, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.food.name} - {self.date} - {self.time}'
+    
+class WaterIntake(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    amount = models.FloatField()  # in liters
+
+    def __str__(self):
+        return f'{self.user.username} - {self.amount}L - {self.date}'
+
+class Breakfast(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    foods = models.ManyToManyField(Food)
+
+    def __str__(self):
+        return f'{self.user.username} - Breakfast - {self.date}'
+
+class Lunch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    foods = models.ManyToManyField(Food)
+
+    def __str__(self):
+        return f'{self.user.username} - Lunch - {self.date}'
+
+class Dinner(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    foods = models.ManyToManyField(Food)
+
+    def __str__(self):
+        return f'{self.user.username} - Dinner - {self.date}'
+
+class Snacks(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date = models.DateField()
+    foods = models.ManyToManyField(Food)
+
+    def __str__(self):
+        return f'{self.user.username} - Snacks - {self.date}'
+    
+class NutritionGoal(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    target_calories = models.FloatField()
+    target_protein = models.FloatField()
+    target_carbohydrates = models.FloatField()
+    target_fats = models.FloatField()
+    # Add fields for other nutrients as needed
+
+
+

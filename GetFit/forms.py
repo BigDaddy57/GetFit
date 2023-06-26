@@ -1,9 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import UserProfile
+from .models import Breakfast, Dinner, Lunch, NutritionGoal, Snacks, UserProfile, WaterIntake
 from .models import Post
 from .models import Group
 from .models import Discussion
+from .models import FoodEntry
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -43,4 +44,39 @@ class DiscussionForm(forms.ModelForm):
     class Meta:
         model = Discussion
         fields = ['title', 'content', 'video', 'image']
+
+class FoodEntryForm(forms.ModelForm):
+    class Meta:
+        model = FoodEntry
+        fields = ['food', 'date', 'time', 'meal_type', 'portion_size']
+
+class WaterIntakeForm(forms.ModelForm):
+    class Meta:
+        model = WaterIntake
+        fields = ['amount']
+
+class BreakfastForm(forms.ModelForm):
+    class Meta:
+        model = Breakfast
+        fields = ['foods']
+
+class LunchForm(forms.ModelForm):
+    class Meta:
+        model = Lunch
+        fields = ['foods']
+
+class DinnerForm(forms.ModelForm):
+    class Meta:
+        model = Dinner
+        fields = ['foods']
+
+class SnacksForm(forms.ModelForm):
+    class Meta:
+        model = Snacks
+        fields = ['foods']
+
+class NutritionGoalForm(forms.ModelForm):
+    class Meta:
+        model = NutritionGoal
+        fields = ['target_calories', 'target_protein', 'target_carbohydrates', 'target_fats']
 

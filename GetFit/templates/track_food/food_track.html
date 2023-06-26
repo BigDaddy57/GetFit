@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Food Track</h1>
+  
+  <a href="{% url 'set_nutrition_goal' %}">Set Nutrition Goals</a>
+
+  <p>Total Calories: {{ total_calories }}g</p>
+  <p>Total Protein: {{ total_protein }}g</p>
+  <p>Total Carbohydrates: {{ total_carbohydrates }}g</p>
+  <p>Total Fats: {{ total_fats }}g</p>
+
+  {% if remaining_calories %}
+    <p>Remaining Calories: {{ remaining_calories }}g</p>
+  {% else %}
+    <p>You haven't set your calorie goal yet.</p>
+  {% endif %}
+
+  {% if remaining_protein %}
+    <p>Remaining Protein: {{ remaining_protein }}g</p>
+  {% else %}
+    <p>You haven't set your protein goal yet.</p>
+  {% endif %}
+
+  {% if remaining_carbohydrates %}
+    <p>Remaining Carbohydrates: {{ remaining_carbohydrates }}g</p>
+  {% else %}
+    <p>You haven't set your carbohydrates goal yet.</p>
+  {% endif %}
+
+  {% if remaining_fats %}
+    <p>Remaining Fats: {{ remaining_fats }}g</p>
+  {% else %}
+    <p>You haven't set your fats goal yet.</p>
+  {% endif %}
+
+  <ul>
+    {% for entry in food_entries %}
+      <li>{{ entry.name }} - {{ entry.calories }} calories</li>
+    {% empty %}
+      <li>No food entries for today.</li>
+    {% endfor %}
+  </ul>
+
+  <a href="{% url 'add_food_entry' %}">Add Food Entry</a>
+  <a href="{% url 'add_water_intake' %}">Add Water Intake</a>
+  <a href="{% url 'add_breakfast' %}">Add Breakfast</a>
+  <a href="{% url 'add_lunch' %}">Add Lunch</a>
+  <a href="{% url 'add_dinner' %}">Add Dinner</a>
+  <a href="{% url 'add_snacks' %}">Add Snacks</a>
+{% endblock %}

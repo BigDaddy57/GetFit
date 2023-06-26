@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from pyparsing import FollowedBy
 from GetFit_Project.settings import BASE_DIR
-from .models import UserProfile, Group
+from .models import NutritionGoal, UserProfile, Group
 from django.views.generic import ListView
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -19,7 +19,7 @@ from django.contrib.auth import logout
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from .forms import UserProfileForm
+from .forms import BreakfastForm, DinnerForm, LunchForm, NutritionGoalForm, SnacksForm, UserProfileForm, WaterIntakeForm
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from .models import Post, UserProfile
@@ -37,6 +37,10 @@ from .models import JoinRequest
 from .models import Discussion
 from .forms import DiscussionForm
 from django.urls import reverse
+from .api import search_food
+from .forms import FoodEntryForm
+from django.utils import timezone
+from .models import FoodEntry
 
 @login_required
 def index(request):
@@ -615,3 +619,160 @@ def discussion_detail(request, group_id, discussion_id):
 
     return render(request, 'groups/discussion_detail.html', {'group': group, 'discussion': discussion})
 
+@login_required
+def food_track(request):
+    # Retrieve all food entries for the current user for the current day
+    food_entries = FoodEntry.objects.filter(user=request.user, date=datetime.date.today())
+
+    # Calculate the total intake of each nutrient for the day
+    total_calories = sum([entry.food.calories for entry in food_entries])
+    total_protein = sum([entry.food.protein for entry in food_entries])
+    total_carbohydrates = sum([entry.food.carbohydrates for entry in food_entries])
+    total_fats = sum([entry.food.fats for entry in food_entries])
+
+    # Retrieve the user's nutritional goals, if they exist
+    try:
+        nutrition_goal = NutritionGoal.objects.get(user=request.user)
+    except NutritionGoal.DoesNotExist:
+        nutrition_goal = None
+
+    # Calculate the remaining amount of each nutrient for the day, if the goals exist
+    if nutrition_goal:
+        remaining_calories = nutrition_goal.target_calories - total_calories
+        remaining_protein = nutrition_goal.target_protein - total_protein
+        remaining_carbohydrates = nutrition_goal.target_carbohydrates - total_carbohydrates
+        remaining_fats = nutrition_goal.target_fats - total_fats
+    else:
+        remaining_calories = remaining_protein = remaining_carbohydrates = remaining_fats = None
+
+    return render(request, 'track_food/food_track.html', {
+        'food_entries': food_entries,
+        'total_calories': total_calories,
+        'total_protein': total_protein,
+        'total_carbohydrates': total_carbohydrates,
+        'total_fats': total_fats,
+        'remaining_calories': remaining_calories,
+        'remaining_protein': remaining_protein,
+        'remaining_carbohydrates': remaining_carbohydrates,
+        'remaining_fats': remaining_fats,
+    })
+
+
+@login_required
+def add_food_entry(request):
+    if request.method == 'POST':
+        # Create a new food entry for the current user
+        food_entry = FoodEntry(user=request.user, name=request.POST['name'], calories=request.POST['calories'])
+        food_entry.save()
+
+        return redirect('food_track')
+    else:
+        return render(request, 'track_food/add_food_entry.html')
+    
+@login_required
+def add_water_intake(request):
+    if request.method == 'POST':
+        form = WaterIntakeForm(request.POST)
+        if form.is_valid():
+            water_intake = form.save(commit=False)
+            water_intake.user = request.user
+            water_intake.date = datetime.date.today()
+            water_intake.save()
+            return redirect('food_track')
+    else:
+        form = WaterIntakeForm()
+    return render(request, 'track_food/add_water_intake.html', {'form': form})
+
+@login_required
+def add_breakfast(request):
+    if request.method == 'POST':
+        form = BreakfastForm(request.POST)
+        if form.is_valid():
+            breakfast = form.save(commit=False)
+            breakfast.user = request.user
+            breakfast.date = datetime.date.today()
+            breakfast.save()
+            form.save_m2m()  # save many-to-many data
+            return redirect('food_track')
+    else:
+        form = BreakfastForm()
+    return render(request, 'track_food/add_breakfast.html', {'form': form})
+
+@login_required
+def add_lunch(request):
+    if request.method == 'POST':
+        form = LunchForm(request.POST)
+        if form.is_valid():
+            lunch = form.save(commit=False)
+            lunch.user = request.user
+            lunch.date = datetime.date.today()
+            lunch.save()
+            form.save_m2m()  # save many-to-many data
+            return redirect('food_track')
+    else:
+        form = LunchForm()
+    return render(request, 'track_food/add_lunch.html', {'form': form})
+
+@login_required
+def add_dinner(request):
+    if request.method == 'POST':
+        form = DinnerForm(request.POST)
+        if form.is_valid():
+            dinner = form.save(commit=False)
+            dinner.user = request.user
+            dinner.date = datetime.date.today()
+            dinner.save()
+            form.save_m2m()  # save many-to-many data
+            return redirect('food_track')
+    else:
+        form = DinnerForm()
+    return render(request, 'track_food/add_dinner.html', {'form': form})
+
+@login_required
+def add_snacks(request):
+    if request.method == 'POST':
+        form = SnacksForm(request.POST)
+        if form.is_valid():
+            snacks = form.save(commit=False)
+            snacks.user = request.user
+            snacks.date = datetime.date.today()
+            snacks.save()
+            form.save_m2m()  # save many-to-many data
+            return redirect('food_track')
+    else:
+        form = SnacksForm()
+    return render(request, 'track_food/add_snacks.html', {'form': form})
+
+@login_required
+def set_nutrition_goal(request):
+    if request.method == 'POST':
+        # Get the nutrition goals from the form data
+        calories = request.POST.get('calories')
+        protein = request.POST.get('protein')
+        carbohydrates = request.POST.get('carbohydrates')
+        fats = request.POST.get('fats')
+
+        # Validate that all fields are provided
+        if not all([calories, protein, carbohydrates, fats]):
+            return render(request, 'track_food/set_nutrition_goal.html', {
+                'error': 'All fields are required.'
+            })
+
+        # Check if the user already has a nutrition goal
+        try:
+            nutrition_goal = NutritionGoal.objects.get(user=request.user)
+        except NutritionGoal.DoesNotExist:
+            # If the user doesn't have a nutrition goal, create a new one
+            nutrition_goal = NutritionGoal(user=request.user)
+
+        # Update the nutrition goal
+        nutrition_goal.target_calories = calories
+        nutrition_goal.target_protein = protein
+        nutrition_goal.target_carbohydrates = carbohydrates
+        nutrition_goal.target_fats = fats
+        nutrition_goal.save()
+
+        return redirect('food_track')
+    else:
+        return render(request, 'track_food/set_nutrition_goal.html')
+    

@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import  path
 from GetFit.views import following_view, group_settings, groups_list, index,home,RegisterView, unfollow_view
 from django.contrib.auth.views import LoginView, LogoutView
 from GetFit.views import user_list
@@ -84,7 +84,14 @@ urlpatterns = [
     path('<int:group_id>/discussions/create/', views.create_discussion, name='create_discussion'),
     path('<int:group_id>/discussions/', views.discussions_list, name='discussions_list'),
     path('<int:group_id>/discussions/<int:discussion_id>/', views.discussion_detail, name='discussion_detail'),
-    
+    path('track_food/', views.food_track, name='food_track'),
+    path('track_food/add/', views.add_food_entry, name='add_food_entry'),
+    path('add_water_intake/', views.add_water_intake, name='add_water_intake'),
+    path('add_breakfast/', views.add_breakfast, name='add_breakfast'),
+    path('add_lunch/', views.add_lunch, name='add_lunch'),
+    path('add_dinner/', views.add_dinner, name='add_dinner'),
+    path('add_snacks/', views.add_snacks, name='add_snacks'),
+    path('set_nutrition_goal/', views.set_nutrition_goal, name='set_nutrition_goal'),
 
 
 ]
